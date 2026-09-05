@@ -1,31 +1,75 @@
 @import "tailwindcss";
 
-:root {
-  --bg: #f7f8fa;
-  --card: #ffffff;
-  --ink: #16181d;
-  --muted: #6b7280;
-  --line: #e5e7eb;
-  --brand: #2563eb;
+@theme {
+  /* Neutral ramp — sedikit cool, ala Linear */
+  --color-ink-950: #0b0d12;
+  --color-ink-900: #16181d;
+  --color-ink-700: #3f444f;
+  --color-ink-500: #6b7280;
+  --color-ink-400: #9aa1ad;
+  --color-ink-200: #e4e7ec;
+  --color-ink-100: #eff1f5;
+  --color-ink-50: #f7f8fa;
+
+  /* Aksen biru */
+  --color-brand-50: #eff5ff;
+  --color-brand-100: #dbe8fe;
+  --color-brand-500: #3b7ef6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+
+  /* Status */
+  --color-ok-50: #ecfdf5;
+  --color-ok-500: #10b981;
+  --color-ok-700: #047857;
+  --color-warn-50: #fffbeb;
+  --color-warn-500: #f59e0b;
+  --color-warn-700: #b45309;
+  --color-bad-50: #fef2f2;
+  --color-bad-500: #ef4444;
+  --color-bad-700: #b91c1c;
+
+  /* Radius — rounded rectangle, BUKAN pill */
+  --radius-card: 12px;
+  --radius-btn: 10px;
+  --radius-chip: 8px;
+
+  --shadow-soft: 0 1px 2px rgb(16 24 40 / 0.04), 0 1px 3px rgb(16 24 40 / 0.06);
+  --shadow-lift: 0 4px 12px rgb(16 24 40 / 0.06), 0 2px 4px rgb(16 24 40 / 0.04);
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-html, body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+* {
+  border-color: var(--color-ink-200);
 }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 12px;
+html {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.btn {
-  border-radius: 10px;
-  padding: 0.6rem 1.1rem;
-  font-weight: 600;
-  transition: opacity .15s;
+body {
+  background: var(--color-ink-50);
+  color: var(--color-ink-900);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
-.btn:hover { opacity: .9; }
-.btn-primary { background: var(--brand); color: #fff; }
+
+/* Angka statistik: rata lebar biar gak goyang saat berubah */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Fokus ring konsisten, aksesibel */
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}

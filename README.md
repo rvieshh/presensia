@@ -56,60 +56,96 @@ Memalsukan kartu berarti harus menebak `QR_SECRET` di server.
 
 ---
 
+## Arsitektur
+
+Aplikasi terbagi dua wilayah dengan tujuan berbeda:
+
+**Layar Absensi (`/`)** — publik, tanpa login. Dipasang di layar dekat gerbang.
+Hanya menampilkan foto siswa, status scan, dan data kehadiran. Tidak ada
+statistik atau menu yang bisa disalahgunakan. Layar menyegarkan sendiri lewat
+polling, sehingga scan dari perangkat lain (scanner fisik, ESP32) tetap muncul.
+
+**Panel Admin (`/admin`)** — wajib login, dijaga guard sesi JWT.
+Berisi statistik, data siswa, kartu QR, dan pengaturan.
+
 ## Fitur
 
-- Scan masuk dan pulang, deteksi otomatis berdasarkan jam
-- Penentuan status: `HADIR`, `TERLAMBAT` (dengan hitungan menit), `IZIN`, `SAKIT`, `ALPA`
-- Anti dobel-scan: satu siswa satu baris absensi per hari (`@@unique([siswaId, tanggal])`)
-- Multi-device: tiap scanner punya `apiKey` dan peran `MASUK`/`PULANG`
-- Audit trail lengkap di `scan_logs`
-- Antrean notifikasi WhatsApp ke orang tua (pola outbox)
-- Halaman cetak kartu QR massal
+Layar absensi:
 
----
+- Jam dan tanggal berjalan
+- Indikator kesiapan scanner
+- Foto siswa, nama, NIS, kelas, waktu datang, waktu pulang
+- Status besar: hadir, terlambat beserta menitnya, atau alasan penolakan
 
-## Instalasi
+Panel admin:
 
-```bash
-git clone https://github.com/rvieshh/presensia.git
-cd presensia
-npm install
+- Statistik kehadiran harian dan progres kelas
+- Tambah siswa satu per satu; QR dibuat otomatis saat disimpan
+- Impor massal CSV dengan pelaporan galat per baris
+- Unduh seluruh QR sebagai ZIP, nama berkas mengikuti NIS, dikelompokkan per kelas
+- Cetak kartu QR langsung dari peramban
+- Pengaturan integrasi WhatsApp beserta monitor antrean
+- Pengaturan jam masuk, batas terlambat, dan jam pulang
 
-cp .env.example .env
-# sesuaikan DATABASE_URL, JWT_SECRET, QR_SECRET
+Mesin absensi:
 
-npx prisma migrate deploy
-npm run seed
+- Deteksi otomatis scan masuk atau pulang
+- Anti dobel-scan lewat `@@unique([siswaId, tanggal])`
+- Multi-perangkat dengan `apiKey` dan peran `MASUK`/`PULANG`
+- Audit trail seluruh percobaan scan di `scan_logs`
 
-npm run dev     # http://localhost:3900
+## Impor CSV
+
+```csv
+nis,nama,kelas,wa_ortu,foto_url
+2025001,Putu Ariana Dewi,X RPL 1,081234567001,
+2025002,"Ni Made Ayu, S.",X RPL 2,081234567002,
 ```
 
-Akun contoh dari seed: `admin@presensia.test` / `admin123`
+Tiga kolom pertama wajib. Pemisah koma atau titik koma, nama bertanda kutip
+aman. Nomor `08…` dinormalkan ke `62…` otomatis. NIS ganda dilewati, bukan
+menggagalkan seluruh berkas; setiap baris bermasalah dilaporkan nomornya.
 
----
+## Unduh QR massal
+
+`GET /api/admin/kartu/zip` menghasilkan:
+
+```
+XI RPL 1/2024001.png     600x600 px
+XI RPL 1/2024002.png
+X RPL 2/2025003.png
+daftar.csv               indeks nis -> berkas
+```
+
+Tambahkan `?kelas=XI RPL 1` untuk membatasi satu kelas.
 
 ## Struktur
 
 ```
 src/
   app/
-    api/scan/route.ts        # endpoint scan (web + perangkat fisik)
-    api/auth/login/route.ts  # login operator
-    scan/                    # stasiun scan, input fokus otomatis
-    kartu/                   # cetak kartu QR massal
-  lib/
-    qr.ts                    # generate & verifikasi HMAC
-    scan.ts                  # logika absensi
-    auth.ts                  # sesi JWT httpOnly
-    waktu.ts                 # util jam & tanggal
-scripts/
-  cron-wa.ts                 # worker notifikasi WhatsApp
-prisma/
-  schema.prisma              # 8 model
-  seed.ts
+    page.tsx                 # layar absensi (publik)
+    KioskClient.tsx
+    masuk/                   # halaman login
+    admin/
+      page.tsx               # dasbor statistik
+      siswa/                 # data siswa + impor CSV
+      kartu/                 # cetak & unduh QR
+      whatsapp/              # integrasi + antrean
+      pengaturan/            # jam sekolah
+    api/
+      scan/                  # endpoint scan
+      kiosk/terakhir/        # polling layar absensi
+      admin/siswa/           # tambah siswa
+      admin/siswa/impor/     # impor CSV
+      admin/kartu/zip/       # unduh QR massal
+      admin/pengaturan/      # simpan setelan
+      auth/login, auth/keluar
+  components/                # Sidebar, StatCard, SiswaAksi, FormPengaturan
+  lib/                       # qr, scan, auth, guard, settings, waktu
+scripts/cron-wa.ts           # worker notifikasi WhatsApp
+prisma/schema.prisma         # 9 model
 ```
-
----
 
 ## API
 
@@ -118,7 +154,7 @@ prisma/
 ```bash
 curl -X POST http://localhost:3900/api/scan \
   -H 'Content-Type: application/json' \
-  -H 'x-api-key: dev-scanner-gerbang-utama' \
+  -H 'x-api-key: dev-sc...ama' \
   -d '{"qr":"PRS1.2024001.qP9J8MGa.hldcA5sWNcr-GpFt"}'
 ```
 

@@ -61,6 +61,7 @@ model Siswa {
   jenisKel  String?
   waOrtu    String?
   namaOrtu  String?
+  fotoUrl   String?
   qrToken   String   @unique
   aktif     Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -146,4 +147,12 @@ model Setting {
   updatedAt DateTime @updatedAt
 
   @@map("settings")
+}
+
+model Jurusan {
+  id   String @id @default(cuid())
+  kode String @unique
+  nama String
+
+  @@map("jurusan")
 }
