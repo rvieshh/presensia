@@ -1,0 +1,149 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  GURU
+  OPERATOR
+}
+
+enum StatusHadir {
+  HADIR
+  TERLAMBAT
+  IZIN
+  SAKIT
+  ALPA
+}
+
+enum TipeScan {
+  MASUK
+  PULANG
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  nama      String
+  password  String
+  role      Role     @default(OPERATOR)
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Kelas {
+  id        String   @id @default(cuid())
+  nama      String   @unique
+  tingkat   String
+  jurusan   String?
+  waliKelas String?
+  createdAt DateTime @default(now())
+
+  siswa Siswa[]
+
+  @@map("kelas")
+}
+
+model Siswa {
+  id        String   @id @default(cuid())
+  nis       String   @unique
+  nisn      String?  @unique
+  nama      String
+  kelasId   String
+  jenisKel  String?
+  waOrtu    String?
+  namaOrtu  String?
+  qrToken   String   @unique
+  aktif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  kelas    Kelas     @relation(fields: [kelasId], references: [id], onDelete: Cascade)
+  absensi  Absensi[]
+  scanLogs ScanLog[]
+
+  @@index([kelasId])
+  @@index([nis])
+  @@map("siswa")
+}
+
+model Device {
+  id          String    @id @default(cuid())
+  nama        String
+  lokasi      String?
+  apiKey      String    @unique
+  tipe        TipeScan  @default(MASUK)
+  aktif       Boolean   @default(true)
+  lastSeenAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  scanLogs ScanLog[]
+
+  @@map("devices")
+}
+
+model Absensi {
+  id        String      @id @default(cuid())
+  siswaId   String
+  tanggal   DateTime    @db.Date
+  jamMasuk  DateTime?
+  jamPulang DateTime?
+  status    StatusHadir @default(ALPA)
+  menitTelat Int        @default(0)
+  keterangan String?
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  siswa Siswa @relation(fields: [siswaId], references: [id], onDelete: Cascade)
+
+  @@unique([siswaId, tanggal])
+  @@index([tanggal])
+  @@map("absensi")
+}
+
+model ScanLog {
+  id        String   @id @default(cuid())
+  siswaId   String?
+  deviceId  String?
+  rawInput  String
+  sukses    Boolean  @default(false)
+  alasan    String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  siswa  Siswa?  @relation(fields: [siswaId], references: [id], onDelete: SetNull)
+  device Device? @relation(fields: [deviceId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@map("scan_logs")
+}
+
+model WaOutbox {
+  id         String    @id @default(cuid())
+  tujuan     String
+  pesan      String
+  terkirim   Boolean   @default(false)
+  percobaan  Int       @default(0)
+  errorMsg   String?
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([terkirim])
+  @@map("wa_outbox")
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("settings")
+}
