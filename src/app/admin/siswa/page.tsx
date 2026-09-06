@@ -10,9 +10,8 @@ export default async function SiswaPage() {
   const [rows, kelas] = await Promise.all([
     prisma.siswa.findMany({
       select: {
-        id: true, nis: true, nisn: true, nama: true, jenisKel: true,
-        tempatLahir: true, tanggalLahir: true, alamat: true, noHp: true,
-        agama: true, namaOrtu: true, waOrtu: true, aktif: true, fotoMime: true,
+        id: true, nis: true, nisn: true, nama: true,
+        waOrtu: true, aktif: true, fotoMime: true,
         kelas: { select: { nama: true } },
       },
       orderBy: [{ kelas: { nama: 'asc' } }, { nis: 'asc' }],
@@ -27,13 +26,6 @@ export default async function SiswaPage() {
     nisn: s.nisn,
     nama: s.nama,
     kelas: s.kelas.nama,
-    jenisKel: s.jenisKel,
-    tempatLahir: s.tempatLahir,
-    tanggalLahir: s.tanggalLahir ? s.tanggalLahir.toISOString().slice(0, 10) : null,
-    alamat: s.alamat,
-    noHp: s.noHp,
-    agama: s.agama,
-    namaOrtu: s.namaOrtu,
     waOrtu: s.waOrtu,
     aktif: s.aktif,
     adaFoto: Boolean(s.fotoMime),

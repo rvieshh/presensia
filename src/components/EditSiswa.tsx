@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera, Trash2, Loader2, Save, X, RefreshCw, User } from 'lucide-react';
+import { Select } from './Select';
 
 export interface SiswaData {
   id: string;
@@ -10,13 +11,6 @@ export interface SiswaData {
   nisn: string | null;
   nama: string;
   kelas: string;
-  jenisKel: string | null;
-  tempatLahir: string | null;
-  tanggalLahir: string | null;
-  alamat: string | null;
-  noHp: string | null;
-  agama: string | null;
-  namaOrtu: string | null;
   waOrtu: string | null;
   aktif: boolean;
   adaFoto: boolean;
@@ -165,7 +159,7 @@ export function EditSiswa({
               </div>
               <div>
                 <label className={lbl} htmlFor="e-nisn">NISN</label>
-                <input id="e-nisn" value={f.nisn ?? ''} onChange={(e) => setF({ ...f, nisn: e.target.value })} className={inp} />
+                <input id="e-nisn" value={f.nisn ?? ''} onChange={(e) => setF({ ...f, nisn: e.target.value })} className={inp} placeholder="opsional" />
               </div>
 
               <div className="sm:col-span-2">
@@ -175,49 +169,22 @@ export function EditSiswa({
 
               <div>
                 <label className={lbl} htmlFor="e-kelas">Kelas *</label>
-                <input id="e-kelas" required list="dl-kelas-edit" value={f.kelas}
-                  onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} />
-                <datalist id="dl-kelas-edit">{kelasTersedia.map((k) => <option key={k} value={k} />)}</datalist>
-              </div>
-              <div>
-                <label className={lbl} htmlFor="e-jk">Jenis Kelamin</label>
-                <select id="e-jk" value={f.jenisKel ?? ''} onChange={(e) => setF({ ...f, jenisKel: e.target.value })} className={inp}>
-                  <option value="">—</option>
-                  <option value="L">Laki-laki</option>
-                  <option value="P">Perempuan</option>
-                </select>
-              </div>
-
-              <div>
-                <label className={lbl} htmlFor="e-tl">Tempat Lahir</label>
-                <input id="e-tl" value={f.tempatLahir ?? ''} onChange={(e) => setF({ ...f, tempatLahir: e.target.value })} className={inp} />
-              </div>
-              <div>
-                <label className={lbl} htmlFor="e-tgl">Tanggal Lahir</label>
-                <input id="e-tgl" type="date" value={f.tanggalLahir ?? ''} onChange={(e) => setF({ ...f, tanggalLahir: e.target.value })} className={inp} />
+                <div className="mt-1.5">
+                  <Select
+                    id="e-kelas"
+                    label="Kelas"
+                    nilai={f.kelas}
+                    opsi={kelasTersedia.map((k) => ({ nilai: k, label: k }))}
+                    onPilih={(v) => setF({ ...f, kelas: v })}
+                    placeholder="Pilih kelas"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className={lbl} htmlFor="e-agama">Agama</label>
-                <input id="e-agama" value={f.agama ?? ''} onChange={(e) => setF({ ...f, agama: e.target.value })} className={inp} />
-              </div>
-              <div>
-                <label className={lbl} htmlFor="e-hp">No. HP Siswa</label>
-                <input id="e-hp" value={f.noHp ?? ''} onChange={(e) => setF({ ...f, noHp: e.target.value })} className={inp} />
-              </div>
-
-              <div className="sm:col-span-2">
-                <label className={lbl} htmlFor="e-alamat">Alamat</label>
-                <input id="e-alamat" value={f.alamat ?? ''} onChange={(e) => setF({ ...f, alamat: e.target.value })} className={inp} />
-              </div>
-
-              <div>
-                <label className={lbl} htmlFor="e-ortu">Nama Orang Tua</label>
-                <input id="e-ortu" value={f.namaOrtu ?? ''} onChange={(e) => setF({ ...f, namaOrtu: e.target.value })} className={inp} />
-              </div>
               <div>
                 <label className={lbl} htmlFor="e-wa">WhatsApp Orang Tua</label>
-                <input id="e-wa" value={f.waOrtu ?? ''} onChange={(e) => setF({ ...f, waOrtu: e.target.value })} className={inp} />
+                <input id="e-wa" value={f.waOrtu ?? ''} onChange={(e) => setF({ ...f, waOrtu: e.target.value })} className={inp} placeholder="08123456789" />
+                <p className="mt-1 text-[11px] text-ink-400">Hanya untuk notifikasi, tidak tampil di layar absensi.</p>
               </div>
 
               <div className="sm:col-span-2 flex flex-wrap gap-2 pt-1">

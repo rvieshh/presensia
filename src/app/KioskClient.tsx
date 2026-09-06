@@ -9,7 +9,7 @@ interface Data {
   id?: string;
   sukses?: boolean;
   alasan?: string | null;
-  siswa?: { nama: string; nis: string; kelas: string; fotoUrl: string | null } | null;
+  siswa?: { nama: string; nis: string; nisn: string | null; kelas: string; fotoUrl: string | null } | null;
   absensi?: { jamMasuk: string | null; jamPulang: string | null; status: string; menitTelat: number } | null;
 }
 
@@ -176,6 +176,7 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
               <dl className="grid gap-x-5 gap-y-3 sm:grid-cols-2">
                 <Baris label="Nama Lengkap" nilai={s?.nama} lebar />
                 <Baris label="NIS" nilai={s?.nis} mono />
+                {s?.nisn && <Baris label="NISN" nilai={s.nisn} mono />}
                 <Baris label="Kelas" nilai={s?.kelas} />
                 <Baris label="Waktu Datang" nilai={a?.jamMasuk} mono />
                 <Baris label="Waktu Pulang" nilai={a?.jamPulang} mono />

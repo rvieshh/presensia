@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, Upload, X, FileDown, Loader2, Camera, Trash2, User } from 'lucide-react';
+import { Select } from './Select';
 
 interface Props { kelasTersedia: string[] }
 
@@ -67,21 +68,12 @@ const inp = 'mt-1.5 w-full rounded-btn border border-ink-200 bg-ink-50 px-3 py-2
 const lbl = 'text-[12.5px] font-medium text-ink-700';
 
 function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; selesai: () => void }) {
-  const [f, setF] = useState({
-    nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '',
-    jenisKel: '', tempatLahir: '', tanggalLahir: '', alamat: '',
-    agama: '', noHp: '', namaOrtu: '', waOrtu: '',
-  });
+  const [f, setF] = useState({ nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '', waOrtu: '' });
   const [file, setFile] = useState<File | null>(null);
   const [pratinjau, setPratinjau] = useState<string | null>(null);
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  function pilihFoto(x: File) {
-    setFile(x);
-    setPratinjau(URL.createObjectURL(x));
-  }
 
   function buangFoto() {
     setFile(null);
@@ -136,7 +128,10 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
           </div>
 
           <input ref={fileRef} type="file" accept="image/*" className="hidden"
-            onChange={(e) => { const x = e.target.files?.[0]; if (x) pilihFoto(x); }} />
+            onChange={(e) => {
+              const x = e.target.files?.[0];
+              if (x) { setFile(x); setPratinjau(URL.createObjectURL(x)); }
+            }} />
 
           <div className="mt-2 flex gap-1.5">
             <button type="button" onClick={() => fileRef.current?.click()}
@@ -164,7 +159,7 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
           </div>
           <div>
             <label className={lbl} htmlFor="f-nisn">NISN</label>
-            <input id="f-nisn" value={f.nisn} onChange={(e) => setF({ ...f, nisn: e.target.value })} className={inp} placeholder="0071234567" />
+            <input id="f-nisn" value={f.nisn} onChange={(e) => setF({ ...f, nisn: e.target.value })} className={inp} placeholder="opsional" />
           </div>
 
           <div className="sm:col-span-2">
@@ -174,49 +169,30 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
 
           <div>
             <label className={lbl} htmlFor="f-kelas">Kelas *</label>
-            <input id="f-kelas" required list="dl-kelas" value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} placeholder="XI RPL 1" />
-            <datalist id="dl-kelas">{kelasTersedia.map((k) => <option key={k} value={k} />)}</datalist>
-          </div>
-          <div>
-            <label className={lbl} htmlFor="f-jk">Jenis Kelamin</label>
-            <select id="f-jk" value={f.jenisKel} onChange={(e) => setF({ ...f, jenisKel: e.target.value })} className={inp}>
-              <option value="">—</option>
-              <option value="L">Laki-laki</option>
-              <option value="P">Perempuan</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={lbl} htmlFor="f-tl">Tempat Lahir</label>
-            <input id="f-tl" value={f.tempatLahir} onChange={(e) => setF({ ...f, tempatLahir: e.target.value })} className={inp} placeholder="Denpasar" />
-          </div>
-          <div>
-            <label className={lbl} htmlFor="f-tgl">Tanggal Lahir</label>
-            <input id="f-tgl" type="date" value={f.tanggalLahir} onChange={(e) => setF({ ...f, tanggalLahir: e.target.value })} className={inp} />
-          </div>
-
-          <div>
-            <label className={lbl} htmlFor="f-agama">Agama</label>
-            <input id="f-agama" value={f.agama} onChange={(e) => setF({ ...f, agama: e.target.value })} className={inp} placeholder="Hindu" />
-          </div>
-          <div>
-            <label className={lbl} htmlFor="f-hp">No. HP Siswa</label>
-            <input id="f-hp" value={f.noHp} onChange={(e) => setF({ ...f, noHp: e.target.value })} className={inp} placeholder="08123456789" />
+            {kelasTersedia.length > 0 ? (
+              <div className="mt-1.5">
+                <Select
+                  id="f-kelas"
+                  label="Kelas"
+                  nilai={f.kelas}
+                  opsi={[...kelasTersedia.map((k) => ({ nilai: k, label: k })), { nilai: '__baru', label: '+ Kelas baru…' }]}
+                  onPilih={(v) => setF({ ...f, kelas: v === '__baru' ? '' : v })}
+                  placeholder="Pilih kelas"
+                />
+                {f.kelas === '' && (
+                  <input required autoFocus value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })}
+                    className={inp} placeholder="Ketik nama kelas baru" />
+                )}
+              </div>
+            ) : (
+              <input id="f-kelas" required value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} placeholder="XI RPL 1" />
+            )}
           </div>
 
-          <div className="sm:col-span-2">
-            <label className={lbl} htmlFor="f-alamat">Alamat</label>
-            <input id="f-alamat" value={f.alamat} onChange={(e) => setF({ ...f, alamat: e.target.value })} className={inp} placeholder="Jl. Contoh No. 1" />
-          </div>
-
-          <div>
-            <label className={lbl} htmlFor="f-ortu">Nama Orang Tua</label>
-            <input id="f-ortu" value={f.namaOrtu} onChange={(e) => setF({ ...f, namaOrtu: e.target.value })} className={inp} placeholder="I Wayan Sudana" />
-          </div>
           <div>
             <label className={lbl} htmlFor="f-wa">WhatsApp Orang Tua</label>
             <input id="f-wa" value={f.waOrtu} onChange={(e) => setF({ ...f, waOrtu: e.target.value })} className={inp} placeholder="08123456789" />
-            <p className="mt-1 text-[11px] text-ink-400">Otomatis diubah ke format 62…</p>
+            <p className="mt-1 text-[11px] text-ink-400">Untuk notifikasi keterlambatan. Tidak tampil di layar absensi.</p>
           </div>
         </div>
       </div>
