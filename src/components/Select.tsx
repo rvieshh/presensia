@@ -121,10 +121,10 @@ export function Select({
       {buka && (
         <div className="absolute z-50 mt-1.5 w-full overflow-hidden rounded-card border border-ink-200 bg-white shadow-lift">
           {onTambah && (
-            <div className="border-b border-ink-200 p-1">
+            <div className="border-b border-ink-200 bg-ink-50/60 p-1">
               {modeTambah ? (
-                <div className="flex items-center gap-2 rounded-btn px-2.5 py-1.5 ring-1 ring-inset ring-brand-500/40 transition-shadow focus-within:ring-[1.5px] focus-within:ring-brand-500">
-                  <Plus size={13} strokeWidth={2.4} className="shrink-0 text-ink-400" />
+                <div className="flex items-center gap-2 px-2.5 py-1.5">
+                  <Plus size={14} strokeWidth={2.6} className="shrink-0 text-brand-600" />
                   <input
                     ref={inputBaru}
                     value={nilaiBaru}
@@ -134,22 +134,16 @@ export function Select({
                       else if (e.key === 'Escape') { e.preventDefault(); setModeTambah(false); setNilaiBaru(''); }
                     }}
                     placeholder="Nama kelas baru"
-                    className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none placeholder:text-ink-400"
+                    className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none ring-0 placeholder:text-ink-400"
                   />
-                  {nilaiBaru.trim() ? (
-                    <button
-                      type="button"
-                      onClick={simpanBaru}
-                      aria-label="Simpan kelas baru"
-                      className="grid h-5 w-5 shrink-0 place-items-center rounded-[6px] text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-900"
-                    >
-                      <CornerDownLeft size={12} strokeWidth={2.4} />
-                    </button>
-                  ) : (
-                    <kbd className="shrink-0 rounded-[5px] border border-ink-200 px-1.5 py-px text-[9.5px] font-medium text-ink-400">
-                      Enter
-                    </kbd>
-                  )}
+                  <button
+                    type="button"
+                    onClick={simpanBaru}
+                    aria-label="Simpan kelas baru"
+                    className="grid h-6 w-6 shrink-0 place-items-center rounded-chip text-brand-600 transition-colors hover:bg-brand-50"
+                  >
+                    <CornerDownLeft size={13} strokeWidth={2.4} />
+                  </button>
                 </div>
               ) : (
                 <button
