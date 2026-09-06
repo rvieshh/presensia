@@ -30,6 +30,7 @@ export function EditSiswa({
   tutup: () => void;
 }) {
   const [f, setF] = useState({ ...siswa });
+  const [kelasLokal, setKelasLokal] = useState<string[]>(kelasTersedia);
   const [err, setErr] = useState('');
   const [ok, setOk] = useState('');
   const [loading, setLoading] = useState(false);
@@ -113,7 +114,7 @@ export function EditSiswa({
           </button>
         </div>
 
-        <form onSubmit={simpan} className="max-h-[75vh] overflow-y-auto p-5">
+        <form onSubmit={simpan} className="p-5">
           <div className="grid gap-5 sm:grid-cols-[150px_1fr]">
             {/* Foto */}
             <div>
@@ -174,8 +175,10 @@ export function EditSiswa({
                     id="e-kelas"
                     label="Kelas"
                     nilai={f.kelas}
-                    opsi={kelasTersedia.map((k) => ({ nilai: k, label: k }))}
+                    opsi={kelasLokal.map((k) => ({ nilai: k, label: k }))}
                     onPilih={(v) => setF({ ...f, kelas: v })}
+                    onTambah={(v) => setKelasLokal((p) => (p.includes(v) ? p : [...p, v]))}
+                    labelTambah="Kelas baru"
                     placeholder="Pilih kelas"
                   />
                 </div>

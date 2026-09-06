@@ -29,7 +29,7 @@ export function Sidebar({ nama, role }: { nama: string; role: string }) {
         </div>
       </div>
 
-      <nav className="flex gap-1 overflow-x-auto px-3 py-3 lg:flex-col lg:overflow-visible">
+      <nav className="scroll-halus flex gap-1 overflow-x-auto px-3 py-3 lg:flex-col lg:overflow-visible">
         {MENU.map((m) => {
           const on = path === m.href || (m.href !== '/admin' && path.startsWith(m.href));
           const Ikon = m.ikon;

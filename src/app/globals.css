@@ -73,3 +73,37 @@ body {
   .no-print { display: none !important; }
   body { background: #fff; }
 }
+
+/* ── Scrollbar halus, khusus panel yang memang menggulir ── */
+.scroll-halus {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-200) transparent;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+.scroll-halus::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scroll-halus::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-halus::-webkit-scrollbar-thumb {
+  background: var(--color-ink-200);
+  border: 2px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+  transition: background-color .15s;
+}
+
+.scroll-halus::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-400);
+  background-clip: content-box;
+}
+
+.scroll-halus::-webkit-scrollbar-corner {
+  background: transparent;
+}

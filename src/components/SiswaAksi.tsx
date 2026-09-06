@@ -58,7 +58,7 @@ function Modal({ judul, tutup, lebar, children }: { judul: string; tutup: () => 
             <X size={16} strokeWidth={2.3} />
           </button>
         </div>
-        <div className="max-h-[78vh] overflow-y-auto p-5">{children}</div>
+        <div className="p-5">{children}</div>
       </div>
     </div>
   );
@@ -69,6 +69,7 @@ const lbl = 'text-[12.5px] font-medium text-ink-700';
 
 function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; selesai: () => void }) {
   const [f, setF] = useState({ nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '', waOrtu: '' });
+  const [kelasLokal, setKelasLokal] = useState<string[]>(kelasTersedia);
   const [file, setFile] = useState<File | null>(null);
   const [pratinjau, setPratinjau] = useState<string | null>(null);
   const [err, setErr] = useState('');
@@ -169,24 +170,18 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
 
           <div>
             <label className={lbl} htmlFor="f-kelas">Kelas *</label>
-            {kelasTersedia.length > 0 ? (
-              <div className="mt-1.5">
-                <Select
-                  id="f-kelas"
-                  label="Kelas"
-                  nilai={f.kelas}
-                  opsi={[...kelasTersedia.map((k) => ({ nilai: k, label: k })), { nilai: '__baru', label: '+ Kelas baru…' }]}
-                  onPilih={(v) => setF({ ...f, kelas: v === '__baru' ? '' : v })}
-                  placeholder="Pilih kelas"
-                />
-                {f.kelas === '' && (
-                  <input required autoFocus value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })}
-                    className={inp} placeholder="Ketik nama kelas baru" />
-                )}
-              </div>
-            ) : (
-              <input id="f-kelas" required value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} placeholder="XI RPL 1" />
-            )}
+            <div className="mt-1.5">
+              <Select
+                id="f-kelas"
+                label="Kelas"
+                nilai={f.kelas}
+                opsi={kelasLokal.map((k) => ({ nilai: k, label: k }))}
+                onPilih={(v) => setF({ ...f, kelas: v })}
+                onTambah={(v) => setKelasLokal((p) => (p.includes(v) ? p : [...p, v]))}
+                labelTambah="Kelas baru"
+                placeholder="Pilih kelas"
+              />
+            </div>
           </div>
 
           <div>

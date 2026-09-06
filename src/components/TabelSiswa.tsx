@@ -126,7 +126,7 @@ export function TabelSiswa({
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="scroll-halus overflow-x-auto">
             <table className="w-full min-w-[720px] text-left">
               <thead>
                 <tr className="border-b border-ink-200 bg-ink-50">
