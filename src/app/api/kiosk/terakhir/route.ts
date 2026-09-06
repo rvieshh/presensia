@@ -43,7 +43,7 @@ export async function GET() {
           nama: log.siswa.nama,
           nis: log.siswa.nis,
           kelas: log.siswa.kelas.nama,
-          fotoUrl: log.siswa.fotoUrl,
+          fotoUrl: log.siswa.fotoMime ? `/api/foto/${log.siswa.nis}` : log.siswa.fotoUrl,
         }
       : null,
     absensi: absensi

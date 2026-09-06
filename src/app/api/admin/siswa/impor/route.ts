@@ -2,18 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { ambilSesi } from '@/lib/auth';
 import { generateQrToken } from '@/lib/qr';
+import { normalWa } from '@/lib/wa';
 
 export const dynamic = 'force-dynamic';
-
-function normalWa(raw?: string | null): string | null {
-  if (!raw) return null;
-  const d = raw.replace(/[^0-9]/g, '');
-  if (!d) return null;
-  if (d.startsWith('62')) return d;
-  if (d.startsWith('0')) return '62' + d.slice(1);
-  if (d.startsWith('8')) return '62' + d;
-  return d;
-}
 
 /** Pecah satu baris CSV, hormati tanda kutip ganda */
 function pecahBaris(baris: string): string[] {

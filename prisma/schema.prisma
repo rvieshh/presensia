@@ -59,9 +59,16 @@ model Siswa {
   nama      String
   kelasId   String
   jenisKel  String?
-  waOrtu    String?
+  tempatLahir String?
+  tanggalLahir DateTime? @db.Date
+  alamat    String?
+  noHp      String?
+  agama     String?
   namaOrtu  String?
+  waOrtu    String?
   fotoUrl   String?
+  fotoData  Bytes?
+  fotoMime  String?
   qrToken   String   @unique
   aktif     Boolean  @default(true)
   createdAt DateTime @default(now())

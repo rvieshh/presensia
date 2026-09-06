@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '@/lib/prisma';
 import { ambilSesi } from '@/lib/auth';
 import { generateQrToken } from '@/lib/qr';
+import { normalWa } from '@/lib/wa';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,21 +11,18 @@ const Schema = z.object({
   nis: z.string().trim().min(1, 'NIS wajib diisi'),
   nama: z.string().trim().min(1, 'Nama wajib diisi'),
   kelas: z.string().trim().min(1, 'Kelas wajib diisi'),
-  waOrtu: z.string().trim().optional().nullable(),
+  nisn: z.string().trim().optional().nullable(),
+  jenisKel: z.enum(['L', 'P']).optional().nullable(),
+  tempatLahir: z.string().trim().optional().nullable(),
+  tanggalLahir: z.string().trim().optional().nullable(),
+  alamat: z.string().trim().optional().nullable(),
+  noHp: z.string().trim().optional().nullable(),
+  agama: z.string().trim().optional().nullable(),
   namaOrtu: z.string().trim().optional().nullable(),
-  fotoUrl: z.string().trim().optional().nullable(),
+  waOrtu: z.string().trim().optional().nullable(),
 });
 
-/** Normalisasi nomor WA Indonesia -> 62xxxx */
-function normalWa(raw?: string | null): string | null {
-  if (!raw) return null;
-  const d = raw.replace(/[^0-9]/g, '');
-  if (!d) return null;
-  if (d.startsWith('62')) return d;
-  if (d.startsWith('0')) return '62' + d.slice(1);
-  if (d.startsWith('8')) return '62' + d;
-  return d;
-}
+const nn = (v?: string | null) => { const t = (v ?? '').trim(); return t === '' ? null : t; };
 
 export async function POST(req: NextRequest) {
   const sesi = await ambilSesi();
@@ -55,9 +53,15 @@ export async function POST(req: NextRequest) {
       nis: d.nis,
       nama: d.nama,
       kelasId: kelas.id,
+      nisn: nn(d.nisn),
+      jenisKel: d.jenisKel || null,
+      tempatLahir: nn(d.tempatLahir),
+      tanggalLahir: d.tanggalLahir ? new Date(d.tanggalLahir) : null,
+      alamat: nn(d.alamat),
+      noHp: normalWa(d.noHp),
+      agama: nn(d.agama),
+      namaOrtu: nn(d.namaOrtu),
       waOrtu: normalWa(d.waOrtu),
-      namaOrtu: d.namaOrtu || null,
-      fotoUrl: d.fotoUrl || null,
       qrToken: generateQrToken(d.nis),
     },
     include: { kelas: true },
