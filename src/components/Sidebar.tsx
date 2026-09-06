@@ -18,7 +18,7 @@ export function Sidebar({ nama, role }: { nama: string; role: string }) {
   const path = usePathname();
 
   return (
-    <aside className="no-print flex w-full shrink-0 flex-col border-b border-ink-200 bg-white lg:h-screen lg:w-60 lg:border-b-0 lg:border-r">
+    <aside className="no-print sticky top-0 z-40 flex w-full shrink-0 flex-col border-b border-ink-200 bg-white lg:h-screen lg:w-60 lg:border-b-0 lg:border-r">
       <div className="flex items-center gap-2.5 border-ink-200 px-5 py-4 lg:border-b">
         <span className="grid h-8 w-8 place-items-center rounded-chip bg-brand-600 text-white">
           <QrCode size={17} strokeWidth={2.4} />
