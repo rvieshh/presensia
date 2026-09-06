@@ -67,5 +67,8 @@ export async function POST(req: NextRequest) {
     include: { kelas: true },
   });
 
-  return NextResponse.json({ ok: true, siswa: { nis: siswa.nis, nama: siswa.nama, kelas: siswa.kelas.nama } });
+  return NextResponse.json({
+    ok: true,
+    siswa: { id: siswa.id, nis: siswa.nis, nama: siswa.nama, kelas: siswa.kelas.nama },
+  });
 }

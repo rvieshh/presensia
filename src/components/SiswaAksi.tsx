@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserPlus, Upload, X, FileDown, Loader2 } from 'lucide-react';
+import { UserPlus, Upload, X, FileDown, Loader2, Camera, Trash2, User } from 'lucide-react';
 
 interface Props { kelasTersedia: string[] }
 
@@ -34,7 +34,7 @@ export function SiswaAksi({ kelasTersedia }: Props) {
       </div>
 
       {modal && (
-        <Modal judul={modal === 'tambah' ? 'Tambah Siswa' : 'Impor Data Siswa'} tutup={() => setModal(null)}>
+        <Modal judul={modal === 'tambah' ? 'Tambah Siswa' : 'Impor Data Siswa'} lebar={modal === 'tambah' ? 'max-w-2xl' : 'max-w-md'} tutup={() => setModal(null)}>
           {modal === 'tambah'
             ? <FormTambah kelasTersedia={kelasTersedia} selesai={() => { setModal(null); router.refresh(); }} />
             : <FormImpor selesai={() => { setModal(null); router.refresh(); }} />}
@@ -44,11 +44,11 @@ export function SiswaAksi({ kelasTersedia }: Props) {
   );
 }
 
-function Modal({ judul, tutup, children }: { judul: string; tutup: () => void; children: React.ReactNode }) {
+function Modal({ judul, tutup, lebar, children }: { judul: string; tutup: () => void; lebar?: string; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-ink-950/40 p-4" onClick={tutup}>
+    <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-ink-950/40 p-4" onClick={tutup}>
       <div
-        className="w-full max-w-md rounded-card border border-ink-200 bg-white shadow-lift"
+        className={`w-full ${lebar ?? "max-w-md"} rounded-card border border-ink-200 bg-white shadow-lift`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-ink-200 px-5 py-3.5">
@@ -57,7 +57,7 @@ function Modal({ judul, tutup, children }: { judul: string; tutup: () => void; c
             <X size={16} strokeWidth={2.3} />
           </button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="max-h-[78vh] overflow-y-auto p-5">{children}</div>
       </div>
     </div>
   );
@@ -67,9 +67,27 @@ const inp = 'mt-1.5 w-full rounded-btn border border-ink-200 bg-ink-50 px-3 py-2
 const lbl = 'text-[12.5px] font-medium text-ink-700';
 
 function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; selesai: () => void }) {
-  const [f, setF] = useState({ nis: '', nama: '', kelas: kelasTersedia[0] || '', waOrtu: '', fotoUrl: '' });
+  const [f, setF] = useState({
+    nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '',
+    jenisKel: '', tempatLahir: '', tanggalLahir: '', alamat: '',
+    agama: '', noHp: '', namaOrtu: '', waOrtu: '',
+  });
+  const [file, setFile] = useState<File | null>(null);
+  const [pratinjau, setPratinjau] = useState<string | null>(null);
   const [err, setErr] = useState('');
   const [loading, setLoading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  function pilihFoto(x: File) {
+    setFile(x);
+    setPratinjau(URL.createObjectURL(x));
+  }
+
+  function buangFoto() {
+    setFile(null);
+    setPratinjau(null);
+    if (fileRef.current) fileRef.current.value = '';
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -82,6 +100,15 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
       });
       const d = await r.json();
       if (!d.ok) { setErr(d.pesan || 'Gagal menyimpan'); return; }
+
+      // Unggah foto setelah siswa terbentuk (butuh id dari server)
+      if (file && d.siswa?.id) {
+        const fd = new FormData();
+        fd.append('foto', file);
+        const rf = await fetch(`/api/admin/siswa/${d.siswa.id}/foto`, { method: 'POST', body: fd });
+        const df = await rf.json();
+        if (!df.ok) { setErr(`Siswa tersimpan, tetapi foto gagal: ${df.pesan}`); return; }
+      }
       selesai();
     } catch { setErr('Gagal terhubung ke server'); }
     finally { setLoading(false); }
@@ -89,45 +116,124 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
 
   return (
     <form onSubmit={submit}>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid gap-5 sm:grid-cols-[150px_1fr]">
+        {/* Foto */}
         <div>
-          <label className={lbl} htmlFor="f-nis">NIS *</label>
-          <input id="f-nis" required value={f.nis} onChange={(e) => setF({ ...f, nis: e.target.value })} className={inp} placeholder="2024001" />
+          <div className="aspect-[3/4] w-full overflow-hidden rounded-card border border-ink-200 bg-ink-50">
+            {pratinjau ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={pratinjau} alt="Pratinjau foto" className="h-full w-full object-cover" />
+            ) : (
+              <div className="grid h-full place-items-center text-center">
+                <div>
+                  <User size={28} strokeWidth={1.5} className="mx-auto text-ink-400" />
+                  <p className="mt-1.5 text-[10px] font-medium uppercase tracking-wide text-ink-400">
+                    Belum ada foto
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            onChange={(e) => { const x = e.target.files?.[0]; if (x) pilihFoto(x); }} />
+
+          <div className="mt-2 flex gap-1.5">
+            <button type="button" onClick={() => fileRef.current?.click()}
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-btn border border-ink-200 bg-white px-2 py-1.5 text-[12px] font-semibold text-ink-700 transition-colors hover:bg-ink-50">
+              <Camera size={13} strokeWidth={2.3} />
+              {file ? 'Ganti' : 'Pilih Foto'}
+            </button>
+            {file && (
+              <button type="button" onClick={buangFoto} aria-label="Buang foto"
+                className="grid h-[30px] w-8 place-items-center rounded-btn border border-ink-200 bg-white text-ink-400 transition-colors hover:bg-bad-50 hover:text-bad-700">
+                <Trash2 size={13} strokeWidth={2.2} />
+              </button>
+            )}
+          </div>
+          <p className="mt-1.5 text-[10.5px] leading-tight text-ink-400">
+            Otomatis dipotong 3:4 dan disimpan di basis data.
+          </p>
         </div>
-        <div>
-          <label className={lbl} htmlFor="f-kelas">Kelas *</label>
-          <input id="f-kelas" required list="dl-kelas" value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} placeholder="XI RPL 1" />
-          <datalist id="dl-kelas">{kelasTersedia.map((k) => <option key={k} value={k} />)}</datalist>
+
+        {/* Data */}
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className={lbl} htmlFor="f-nis">NIS *</label>
+            <input id="f-nis" required value={f.nis} onChange={(e) => setF({ ...f, nis: e.target.value })} className={inp} placeholder="2024001" />
+          </div>
+          <div>
+            <label className={lbl} htmlFor="f-nisn">NISN</label>
+            <input id="f-nisn" value={f.nisn} onChange={(e) => setF({ ...f, nisn: e.target.value })} className={inp} placeholder="0071234567" />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className={lbl} htmlFor="f-nama">Nama Lengkap *</label>
+            <input id="f-nama" required value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} className={inp} placeholder="Randika Putra" />
+          </div>
+
+          <div>
+            <label className={lbl} htmlFor="f-kelas">Kelas *</label>
+            <input id="f-kelas" required list="dl-kelas" value={f.kelas} onChange={(e) => setF({ ...f, kelas: e.target.value })} className={inp} placeholder="XI RPL 1" />
+            <datalist id="dl-kelas">{kelasTersedia.map((k) => <option key={k} value={k} />)}</datalist>
+          </div>
+          <div>
+            <label className={lbl} htmlFor="f-jk">Jenis Kelamin</label>
+            <select id="f-jk" value={f.jenisKel} onChange={(e) => setF({ ...f, jenisKel: e.target.value })} className={inp}>
+              <option value="">—</option>
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan</option>
+            </select>
+          </div>
+
+          <div>
+            <label className={lbl} htmlFor="f-tl">Tempat Lahir</label>
+            <input id="f-tl" value={f.tempatLahir} onChange={(e) => setF({ ...f, tempatLahir: e.target.value })} className={inp} placeholder="Denpasar" />
+          </div>
+          <div>
+            <label className={lbl} htmlFor="f-tgl">Tanggal Lahir</label>
+            <input id="f-tgl" type="date" value={f.tanggalLahir} onChange={(e) => setF({ ...f, tanggalLahir: e.target.value })} className={inp} />
+          </div>
+
+          <div>
+            <label className={lbl} htmlFor="f-agama">Agama</label>
+            <input id="f-agama" value={f.agama} onChange={(e) => setF({ ...f, agama: e.target.value })} className={inp} placeholder="Hindu" />
+          </div>
+          <div>
+            <label className={lbl} htmlFor="f-hp">No. HP Siswa</label>
+            <input id="f-hp" value={f.noHp} onChange={(e) => setF({ ...f, noHp: e.target.value })} className={inp} placeholder="08123456789" />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className={lbl} htmlFor="f-alamat">Alamat</label>
+            <input id="f-alamat" value={f.alamat} onChange={(e) => setF({ ...f, alamat: e.target.value })} className={inp} placeholder="Jl. Contoh No. 1" />
+          </div>
+
+          <div>
+            <label className={lbl} htmlFor="f-ortu">Nama Orang Tua</label>
+            <input id="f-ortu" value={f.namaOrtu} onChange={(e) => setF({ ...f, namaOrtu: e.target.value })} className={inp} placeholder="I Wayan Sudana" />
+          </div>
+          <div>
+            <label className={lbl} htmlFor="f-wa">WhatsApp Orang Tua</label>
+            <input id="f-wa" value={f.waOrtu} onChange={(e) => setF({ ...f, waOrtu: e.target.value })} className={inp} placeholder="08123456789" />
+            <p className="mt-1 text-[11px] text-ink-400">Otomatis diubah ke format 62…</p>
+          </div>
         </div>
       </div>
 
-      <div className="mt-3">
-        <label className={lbl} htmlFor="f-nama">Nama Lengkap *</label>
-        <input id="f-nama" required value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} className={inp} placeholder="Randika Putra" />
-      </div>
+      {err && <p className="mt-4 rounded-btn border border-bad-500/25 bg-bad-50 px-3 py-2 text-[12.5px] font-medium text-bad-700">{err}</p>}
 
-      <div className="mt-3">
-        <label className={lbl} htmlFor="f-wa">WhatsApp Orang Tua</label>
-        <input id="f-wa" value={f.waOrtu} onChange={(e) => setF({ ...f, waOrtu: e.target.value })} className={inp} placeholder="08123456789" />
-        <p className="mt-1 text-[11px] text-ink-400">Otomatis diubah ke format 62…</p>
-      </div>
-
-      <div className="mt-3">
-        <label className={lbl} htmlFor="f-foto">URL Foto</label>
-        <input id="f-foto" value={f.fotoUrl} onChange={(e) => setF({ ...f, fotoUrl: e.target.value })} className={inp} placeholder="https://…/foto.jpg" />
-      </div>
-
-      {err && <p className="mt-3 rounded-btn border border-bad-500/25 bg-bad-50 px-3 py-2 text-[12.5px] font-medium text-bad-700">{err}</p>}
-
-      <p className="mt-3 rounded-btn bg-brand-50 px-3 py-2 text-[11.5px] text-brand-700">
-        QR code dibuat otomatis dan langsung siap dicetak.
+      <p className="mt-4 rounded-btn bg-brand-50 px-3 py-2 text-[11.5px] text-brand-700">
+        QR code dibuat otomatis saat disimpan dan langsung siap dicetak.
       </p>
 
-      <button type="submit" disabled={loading}
-        className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-btn bg-brand-600 px-4 py-2.5 text-[13.5px] font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60">
-        {loading ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} strokeWidth={2.3} />}
-        {loading ? 'Menyimpan…' : 'Simpan Siswa'}
-      </button>
+      <div className="mt-4 flex gap-2 border-t border-ink-200 pt-4">
+        <button type="submit" disabled={loading}
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-btn bg-brand-600 px-4 py-2.5 text-[13.5px] font-semibold text-white transition-colors hover:bg-brand-700 disabled:opacity-60">
+          {loading ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} strokeWidth={2.3} />}
+          {loading ? 'Menyimpan…' : 'Simpan Siswa'}
+        </button>
+      </div>
     </form>
   );
 }
