@@ -104,8 +104,8 @@ export function Select({
         onClick={() => (buka ? tutup() : setBuka(true))}
         onKeyDown={tombolUtama}
         className={[
-          'flex w-full items-center justify-between gap-2 rounded-btn border px-3 py-2 text-left text-[13.5px] transition-colors',
-          buka ? 'border-brand-500 bg-white' : 'border-ink-200 bg-ink-50 hover:border-ink-400 hover:bg-white',
+          'flex w-full items-center justify-between gap-2 rounded-btn bg-white px-3 py-2 text-left text-[13.5px] ring-1 ring-inset transition-shadow',
+          buka ? 'ring-[1.5px] ring-brand-500' : 'ring-ink-200 hover:ring-ink-400',
         ].join(' ')}
       >
         <span className={terpilih ? 'text-ink-900' : 'text-ink-400'}>
@@ -123,8 +123,8 @@ export function Select({
           {onTambah && (
             <div className="border-b border-ink-200 p-1">
               {modeTambah ? (
-                <div className="flex items-center gap-1.5 rounded-btn bg-brand-50 px-2 py-1">
-                  <Plus size={14} strokeWidth={2.6} className="shrink-0 text-brand-600" />
+                <div className="flex items-center gap-2 rounded-btn px-2.5 py-1.5 ring-1 ring-inset ring-brand-500/40 transition-shadow focus-within:ring-[1.5px] focus-within:ring-brand-500">
+                  <Plus size={13} strokeWidth={2.4} className="shrink-0 text-ink-400" />
                   <input
                     ref={inputBaru}
                     value={nilaiBaru}
@@ -133,17 +133,23 @@ export function Select({
                       if (e.key === 'Enter') { e.preventDefault(); simpanBaru(); }
                       else if (e.key === 'Escape') { e.preventDefault(); setModeTambah(false); setNilaiBaru(''); }
                     }}
-                    placeholder="Ketik lalu tekan Enter"
-                    className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none placeholder:text-brand-700/50"
+                    placeholder="Nama kelas baru"
+                    className="min-w-0 flex-1 bg-transparent text-[13px] text-ink-900 outline-none placeholder:text-ink-400"
                   />
-                  <button
-                    type="button"
-                    onClick={simpanBaru}
-                    aria-label="Simpan"
-                    className="grid h-6 w-6 shrink-0 place-items-center rounded-chip text-brand-600 transition-colors hover:bg-white"
-                  >
-                    <CornerDownLeft size={13} strokeWidth={2.4} />
-                  </button>
+                  {nilaiBaru.trim() ? (
+                    <button
+                      type="button"
+                      onClick={simpanBaru}
+                      aria-label="Simpan kelas baru"
+                      className="grid h-5 w-5 shrink-0 place-items-center rounded-[6px] text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-900"
+                    >
+                      <CornerDownLeft size={12} strokeWidth={2.4} />
+                    </button>
+                  ) : (
+                    <kbd className="shrink-0 rounded-[5px] border border-ink-200 px-1.5 py-px text-[9.5px] font-medium text-ink-400">
+                      Enter
+                    </kbd>
+                  )}
                 </div>
               ) : (
                 <button

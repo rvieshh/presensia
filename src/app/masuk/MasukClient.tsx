@@ -49,7 +49,7 @@ export default function MasukClient() {
             id="email" type="email" required value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="admin@sekolah.sch.id"
-            className="mt-1.5 w-full rounded-btn border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-[14px] outline-none transition-colors focus:border-brand-500 focus:bg-white"
+            className="mt-1.5 w-full rounded-btn bg-white px-3.5 py-2.5 text-[14px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
           />
 
           <label htmlFor="pw" className="mt-4 block text-[12.5px] font-medium text-ink-700">Kata Sandi</label>
@@ -57,7 +57,7 @@ export default function MasukClient() {
             id="pw" type="password" required value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="mt-1.5 w-full rounded-btn border border-ink-200 bg-ink-50 px-3.5 py-2.5 text-[14px] outline-none transition-colors focus:border-brand-500 focus:bg-white"
+            className="mt-1.5 w-full rounded-btn bg-white px-3.5 py-2.5 text-[14px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
           />
 
           {err && (

@@ -107,3 +107,36 @@ body {
 .scroll-halus::-webkit-scrollbar-corner {
   background: transparent;
 }
+
+/* Kolom isian: hilangkan gaya bawaan peramban yang terasa kaku */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="file"],
+textarea {
+  appearance: none;
+  background-image: none;
+}
+
+/* Autofill Chrome mewarnai kolom biru pucat; samakan dengan tema */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ink-900);
+  -webkit-box-shadow: 0 0 0 100px #fff inset;
+  caret-color: var(--color-ink-900);
+}
+
+/* Ikon kalender bawaan agar tidak mencolok */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: .45;
+  cursor: pointer;
+  transition: opacity .15s;
+}
+input[type="date"]:hover::-webkit-calendar-picker-indicator,
+input[type="time"]:hover::-webkit-calendar-picker-indicator {
+  opacity: .8;
+}

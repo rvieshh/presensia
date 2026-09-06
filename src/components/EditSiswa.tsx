@@ -17,7 +17,7 @@ export interface SiswaData {
 }
 
 const inp =
-  'mt-1.5 w-full rounded-btn border border-ink-200 bg-ink-50 px-3 py-2 text-[13.5px] outline-none transition-colors focus:border-brand-500 focus:bg-white';
+  'mt-1.5 w-full rounded-btn bg-white px-3 py-2 text-[13.5px] text-ink-900 outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500';
 const lbl = 'text-[12.5px] font-medium text-ink-700';
 
 export function EditSiswa({

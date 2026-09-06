@@ -83,7 +83,7 @@ export function TabelSiswa({
             onChange={(e) => setCari(e.target.value)}
             placeholder="Cari nama, NIS, atau NISN…"
             aria-label="Cari siswa"
-            className="w-full rounded-btn border border-ink-200 bg-white py-2 pl-9 pr-3 text-[13.5px] outline-none transition-colors focus:border-brand-500"
+            className="w-full rounded-btn bg-white py-2 pl-9 pr-3 text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
           />
         </div>
         <div className="w-44">

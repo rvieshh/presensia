@@ -141,7 +141,7 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
             onChange={(e) => setBuf(e.target.value)}
             placeholder="Tembakkan QR ke scanner, atau ketik kode lalu Enter"
             autoComplete="off"
-            className="w-full rounded-btn border border-ink-200 bg-white px-4 py-2.5 text-center font-mono text-[13.5px] outline-none transition-colors placeholder:font-sans placeholder:text-ink-400 focus:border-brand-500"
+            className="w-full rounded-btn bg-white px-4 py-2.5 text-center font-mono text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:font-sans placeholder:text-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
           />
         </form>
 
