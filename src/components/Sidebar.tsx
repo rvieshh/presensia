@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, QrCode, Monitor,
 } from 'lucide-react';
+import { TemaSwitcher } from './TemaSwitcher';
 
 const MENU = [
   { href: '/admin', label: 'Dasbor', ikon: LayoutDashboard },
@@ -59,6 +60,11 @@ export function Sidebar({ nama, role }: { nama: string; role: string }) {
           <Monitor size={16} strokeWidth={2.2} />
           Layar Absensi
         </Link>
+
+        <div className="mt-2 flex items-center justify-between gap-2 px-1">
+          <span className="text-[11.5px] font-medium text-ink-400">Tema</span>
+          <TemaSwitcher ringkas />
+        </div>
 
         <div className="mt-2 flex items-center gap-2.5 rounded-btn bg-ink-50 px-3 py-2.5">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-chip bg-white text-[11px] font-semibold text-ink-700 shadow-soft">

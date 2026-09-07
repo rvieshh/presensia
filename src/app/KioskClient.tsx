@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { QrCode, CheckCircle2, XCircle, ScanLine, User } from 'lucide-react';
+import { TemaSwitcher } from '@/components/TemaSwitcher';
 
 interface Data {
   ada: boolean;
@@ -17,7 +18,13 @@ const HARI = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
 const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
   'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
-export default function KioskClient({ sekolah }: { sekolah: string }) {
+export default function KioskClient({
+  sekolah,
+  manualAktif,
+}: {
+  sekolah: string;
+  manualAktif: boolean;
+}) {
   const [buf, setBuf] = useState('');
   const [data, setData] = useState<Data>({ ada: false });
   const [jam, setJam] = useState('');
@@ -111,9 +118,12 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="flex items-center gap-3">
+            <TemaSwitcher ringkas />
+            <div className="text-right">
             <p className="tnum text-[26px] font-semibold leading-none">{jam || '--:--:--'}</p>
             <p className="mt-1 text-[12px] text-ink-500">{tgl || '\u00A0'}</p>
+            </div>
           </div>
         </div>
       </header>
@@ -131,7 +141,9 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
           <span className="ml-auto text-[12px] text-ok-700/70">Sesi aktif</span>
         </div>
 
-        {/* Input tersembunyi untuk keyboard-wedge */}
+        {/* Kolom kode: tampak bila input manual diizinkan.
+            Bila dimatikan, kolom tetap ada namun tidak terlihat agar
+            pemindai keyboard-wedge tetap dapat mengirim datanya. */}
         <form onSubmit={(e) => { e.preventDefault(); kirim(buf); }} className="mt-3">
           <label htmlFor="qr" className="sr-only">Input kode QR</label>
           <input
@@ -141,8 +153,20 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
             onChange={(e) => setBuf(e.target.value)}
             placeholder="Tembakkan QR ke scanner, atau ketik kode lalu Enter"
             autoComplete="off"
-            className="w-full rounded-btn bg-white px-4 py-2.5 text-center font-mono text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:font-sans placeholder:text-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
+            readOnly={!manualAktif}
+            aria-hidden={!manualAktif}
+            tabIndex={manualAktif ? 0 : -1}
+            className={
+              manualAktif
+                ? 'w-full rounded-btn bg-white px-4 py-2.5 text-center font-mono text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:font-sans placeholder:text-ink-400 focus:ring-[1.5px] focus:ring-brand-500'
+                : 'pointer-events-none absolute h-px w-px opacity-0'
+            }
           />
+          {!manualAktif && (
+            <p className="mt-1 text-center text-[11.5px] text-ink-400">
+              Input manual dinonaktifkan. Silakan pindai kartu pada alat pemindai.
+            </p>
+          )}
         </form>
 
         {/* Panel informasi kehadiran */}
@@ -232,9 +256,20 @@ export default function KioskClient({ sekolah }: { sekolah: string }) {
           </div>
         </section>
 
-        <p className="mt-4 text-center text-[11.5px] text-ink-400">
-          Presensia &middot; layar ini menyegarkan otomatis
-        </p>
+        <footer className="mt-5 flex flex-wrap items-center justify-center gap-2 text-center text-[11.5px] text-ink-400">
+          <span>
+            &copy; {sekolah} {new Date().getFullYear()}. Powered by{' '}
+            <a
+              href="https://github.com/rvieshh/presensia"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand-600 transition-colors hover:text-brand-700 hover:underline"
+            >
+              Presensia
+            </a>
+            .
+          </span>
+        </footer>
       </div>
     </main>
   );

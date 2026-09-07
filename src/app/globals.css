@@ -41,6 +41,55 @@
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 }
 
+/*
+ * Mode gelap memakai variabel yang sama, hanya nilainya dibalik.
+ * Dengan begitu seluruh komponen ikut berubah tanpa perlu kelas dark:
+ * di setiap elemen.
+ */
+:root[data-tema="gelap"] {
+  --color-ink-950: #f7f8fa;
+  --color-ink-900: #e8eaef;
+  --color-ink-700: #b9bfcb;
+  --color-ink-500: #8b93a3;
+  --color-ink-400: #6d7585;
+  --color-ink-200: #2b303a;
+  --color-ink-100: #242932;
+  --color-ink-50: #171b22;
+
+  --color-brand-50: #17233d;
+  --color-brand-100: #1d2f52;
+  --color-brand-500: #4d8bf8;
+  --color-brand-600: #3b7ef6;
+  --color-brand-700: #6ba3ff;
+
+  --color-ok-50: #12281f;
+  --color-ok-700: #4ade80;
+  --color-warn-50: #2a2113;
+  --color-warn-700: #fbbf24;
+  --color-bad-50: #2b1618;
+  --color-bad-700: #f87171;
+
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 1px 3px rgb(0 0 0 / 0.24);
+  --shadow-lift: 0 4px 14px rgb(0 0 0 / 0.4), 0 2px 6px rgb(0 0 0 / 0.3);
+
+  color-scheme: dark;
+}
+
+:root[data-tema="gelap"] body {
+  background: #10141a;
+}
+
+:root[data-tema="gelap"] .card,
+:root[data-tema="gelap"] table,
+:root[data-tema="gelap"] thead tr {
+  background-color: var(--color-ink-100);
+}
+
+/* Putih eksplisit pada komponen harus ikut menggelap */
+:root[data-tema="gelap"] .bg-white {
+  background-color: #1a1f27 !important;
+}
+
 * {
   border-color: var(--color-ink-200);
 }
