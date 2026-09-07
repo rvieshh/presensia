@@ -1,36 +1,68 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Pencil, Trash2, User, Search, X } from 'lucide-react';
+import { Pencil, Trash2, User, Search, X, Loader2 } from 'lucide-react';
 import { EditSiswa, type SiswaData } from './EditSiswa';
 import { Select } from './Select';
+import { SkeletonBaris } from './SkeletonBaris';
+import { Paginasi } from './Paginasi';
 
-export function TabelSiswa({
-  siswa,
-  kelasTersedia,
-}: {
-  siswa: SiswaData[];
-  kelasTersedia: string[];
-}) {
-  const [edit, setEdit] = useState<SiswaData | null>(null);
+const PER_OPSI = [10, 25, 50, 100];
+
+export function TabelSiswa({ kelasTersedia }: { kelasTersedia: string[] }) {
+  const [siswa, setSiswa] = useState<SiswaData[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalHal, setTotalHal] = useState(1);
+  const [memuat, setMemuat] = useState(true);
+
+  const [hal, setHal] = useState(1);
+  const [per, setPer] = useState(10);
+  const [kelas, setKelas] = useState('');
   const [cari, setCari] = useState('');
-  const [kelasFilter, setKelasFilter] = useState('');
+  const [cariTunda, setCariTunda] = useState('');
+
+  const [edit, setEdit] = useState<SiswaData | null>(null);
   const [pilih, setPilih] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const router = useRouter();
+  const permintaan = useRef(0);
 
-  const q = cari.trim().toLowerCase();
-  const tampil = siswa.filter(
-    (s) =>
-      (!kelasFilter || s.kelas === kelasFilter) &&
-      (!q || s.nama.toLowerCase().includes(q) || s.nis.includes(q) || (s.nisn ?? '').includes(q))
-  );
+  // Tunda pencarian agar tidak memanggil server pada setiap ketikan
+  useEffect(() => {
+    const t = setTimeout(() => { setCariTunda(cari); setHal(1); }, 350);
+    return () => clearTimeout(t);
+  }, [cari]);
 
-  const idTampil = tampil.map((s) => s.id);
-  const terpilihTampil = idTampil.filter((id) => pilih.has(id));
-  const semuaTerpilih = idTampil.length > 0 && terpilihTampil.length === idTampil.length;
-  const sebagian = terpilihTampil.length > 0 && !semuaTerpilih;
+  const muat = useCallback(async () => {
+    const tiket = ++permintaan.current;
+    setMemuat(true);
+    try {
+      const p = new URLSearchParams({ hal: String(hal), per: String(per) });
+      if (kelas) p.set('kelas', kelas);
+      if (cariTunda) p.set('cari', cariTunda);
+
+      const r = await fetch(`/api/admin/siswa/daftar?${p}`, { cache: 'no-store' });
+      const d = await r.json();
+      // Abaikan jawaban yang sudah usang bila pengguna mengetik cepat
+      if (tiket !== permintaan.current) return;
+      if (d.ok) {
+        setSiswa(d.siswa);
+        setTotal(d.total);
+        setTotalHal(d.totalHal);
+        if (d.hal !== hal) setHal(d.hal);
+      }
+    } finally {
+      if (tiket === permintaan.current) setMemuat(false);
+    }
+  }, [hal, per, kelas, cariTunda]);
+
+  useEffect(() => { muat(); }, [muat]);
+
+  const idTampil = siswa.map((s) => s.id);
+  const terpilih = idTampil.filter((id) => pilih.has(id));
+  const semuaTerpilih = idTampil.length > 0 && terpilih.length === idTampil.length;
+  const sebagian = terpilih.length > 0 && !semuaTerpilih;
 
   function toggleSemua() {
     const baru = new Set(pilih);
@@ -41,24 +73,22 @@ export function TabelSiswa({
 
   function toggleSatu(id: string) {
     const baru = new Set(pilih);
-    if (baru.has(id)) baru.delete(id);
-    else baru.add(id);
+    baru.has(id) ? baru.delete(id) : baru.add(id);
     setPilih(baru);
   }
 
   async function hapusMassal() {
-    const n = terpilihTampil.length;
-    if (!confirm(`Hapus ${n} siswa terpilih?\n\nSeluruh riwayat absensi mereka ikut terhapus dan tidak bisa dikembalikan.`)) return;
+    if (!confirm(`Hapus ${terpilih.length} siswa terpilih?\n\nSeluruh riwayat absensi mereka ikut terhapus.`)) return;
     setBusy(true);
     try {
       const r = await fetch('/api/admin/siswa/hapus-massal', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: terpilihTampil }),
+        body: JSON.stringify({ ids: terpilih }),
       });
       const d = await r.json();
       if (!d.ok) alert(d.pesan);
-      else { setPilih(new Set()); router.refresh(); }
+      else { setPilih(new Set()); await muat(); router.refresh(); }
     } finally { setBusy(false); }
   }
 
@@ -69,7 +99,7 @@ export function TabelSiswa({
       const r = await fetch(`/api/admin/siswa/${s.id}`, { method: 'DELETE' });
       const d = await r.json();
       if (!d.ok) alert(d.pesan);
-      else router.refresh();
+      else { await muat(); router.refresh(); }
     } finally { setBusy(false); }
   }
 
@@ -83,25 +113,36 @@ export function TabelSiswa({
             onChange={(e) => setCari(e.target.value)}
             placeholder="Cari nama, NIS, atau NISN…"
             aria-label="Cari siswa"
-            className="w-full rounded-btn bg-white py-2 pl-9 pr-3 text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
+            className="w-full rounded-btn bg-white py-2 pl-9 pr-9 text-[13.5px] outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500"
           />
+          {memuat && cari && (
+            <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-ink-400" />
+          )}
         </div>
+
         <div className="w-44">
           <Select
             label="Saring kelas"
-            nilai={kelasFilter}
+            nilai={kelas}
             opsi={[{ nilai: '', label: 'Semua kelas' }, ...kelasTersedia.map((k) => ({ nilai: k, label: k }))]}
-            onPilih={setKelasFilter}
+            onPilih={(v) => { setKelas(v); setHal(1); }}
             placeholder="Semua kelas"
+          />
+        </div>
+
+        <div className="w-32">
+          <Select
+            label="Jumlah baris"
+            nilai={String(per)}
+            opsi={PER_OPSI.map((n) => ({ nilai: String(n), label: `${n} baris` }))}
+            onPilih={(v) => { setPer(Number(v)); setHal(1); }}
           />
         </div>
       </div>
 
-      {terpilihTampil.length > 0 && (
+      {terpilih.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-3 rounded-card border border-brand-500/25 bg-brand-50 px-4 py-2.5">
-          <span className="text-[13px] font-semibold text-brand-700">
-            {terpilihTampil.length} siswa dipilih
-          </span>
+          <span className="text-[13px] font-semibold text-brand-700">{terpilih.length} siswa dipilih</span>
           <button onClick={() => setPilih(new Set())}
             className="inline-flex items-center gap-1 text-[12.5px] font-medium text-brand-700 hover:underline">
             <X size={13} strokeWidth={2.4} /> Batal pilih
@@ -109,63 +150,64 @@ export function TabelSiswa({
           <button onClick={hapusMassal} disabled={busy}
             className="ml-auto inline-flex items-center gap-1.5 rounded-btn bg-bad-500 px-3 py-1.5 text-[12.5px] font-semibold text-white transition-colors hover:bg-bad-700 disabled:opacity-60">
             <Trash2 size={13} strokeWidth={2.3} />
-            {busy ? 'Menghapus…' : `Hapus ${terpilihTampil.length} siswa`}
+            {busy ? 'Menghapus…' : `Hapus ${terpilih.length} siswa`}
           </button>
         </div>
       )}
 
       <section className="mt-3 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft">
-        {tampil.length === 0 ? (
-          <div className="px-5 py-16 text-center">
-            <User size={30} strokeWidth={1.6} className="mx-auto text-ink-400" />
-            <p className="mt-2 text-[13.5px] font-medium text-ink-700">
-              {siswa.length === 0 ? 'Belum ada data siswa' : 'Tidak ada yang cocok'}
-            </p>
-            <p className="mt-1 text-[12.5px] text-ink-400">
-              {siswa.length === 0 ? 'Tambah satu per satu, atau impor massal lewat CSV.' : 'Coba kata kunci lain.'}
-            </p>
-          </div>
-        ) : (
-          <div className="scroll-halus overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left">
-              <thead>
-                <tr className="border-b border-ink-200 bg-ink-50">
-                  <th className="w-10 px-3 py-2.5">
-                    <input
-                      type="checkbox"
-                      aria-label="Pilih semua"
-                      checked={semuaTerpilih}
-                      ref={(el) => { if (el) el.indeterminate = sebagian; }}
-                      onChange={toggleSemua}
-                      className="h-3.5 w-3.5 cursor-pointer accent-brand-600"
-                    />
+        <div className="scroll-halus overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left">
+            <thead>
+              <tr className="border-b border-ink-200 bg-ink-50">
+                <th className="w-10 px-3 py-2.5">
+                  <input
+                    type="checkbox"
+                    aria-label="Pilih semua"
+                    checked={semuaTerpilih}
+                    ref={(el) => { if (el) el.indeterminate = sebagian; }}
+                    onChange={toggleSemua}
+                    disabled={memuat || siswa.length === 0}
+                    className="h-3.5 w-3.5 cursor-pointer accent-brand-600 disabled:opacity-40"
+                  />
+                </th>
+                {['Foto', 'NIS', 'Nama', 'Kelas', 'WhatsApp Ortu', 'Status', ''].map((h, i) => (
+                  <th key={i} className="px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink-500">
+                    {h}
                   </th>
-                  {['Foto', 'NIS', 'Nama', 'Kelas', 'WhatsApp Ortu', 'Status', ''].map((h, i) => (
-                    <th key={i} className="px-4 py-2.5 text-[11.5px] font-semibold uppercase tracking-wide text-ink-500">
-                      {h}
-                    </th>
-                  ))}
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-ink-200">
+              {memuat ? (
+                <SkeletonBaris jumlah={Math.min(per, 10)} />
+              ) : siswa.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-5 py-16 text-center">
+                    <User size={30} strokeWidth={1.6} className="mx-auto text-ink-400" />
+                    <p className="mt-2 text-[13.5px] font-medium text-ink-700">
+                      {cariTunda || kelas ? 'Tidak ada yang cocok' : 'Belum ada data siswa'}
+                    </p>
+                    <p className="mt-1 text-[12.5px] text-ink-400">
+                      {cariTunda || kelas ? 'Coba kata kunci atau kelas lain.' : 'Tambah satu per satu, atau impor massal lewat CSV.'}
+                    </p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-ink-200">
-                {tampil.map((s) => {
+              ) : (
+                siswa.map((s) => {
                   const dipilih = pilih.has(s.id);
                   return (
                     <tr key={s.id} className={`transition-colors ${dipilih ? 'bg-brand-50' : 'hover:bg-ink-50'}`}>
                       <td className="px-3 py-2.5">
-                        <input
-                          type="checkbox"
-                          aria-label={`Pilih ${s.nama}`}
-                          checked={dipilih}
+                        <input type="checkbox" aria-label={`Pilih ${s.nama}`} checked={dipilih}
                           onChange={() => toggleSatu(s.id)}
-                          className="h-3.5 w-3.5 cursor-pointer accent-brand-600"
-                        />
+                          className="h-3.5 w-3.5 cursor-pointer accent-brand-600" />
                       </td>
                       <td className="py-2 pl-4 pr-2">
                         <span className="grid h-9 w-7 place-items-center overflow-hidden rounded-chip border border-ink-200 bg-ink-100">
                           {s.adaFoto ? (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={`/api/foto/${s.nis}`} alt="" className="h-full w-full object-cover" />
+                            <img src={`/api/foto/${s.nis}`} alt="" loading="lazy" className="h-full w-full object-cover" />
                           ) : (
                             <User size={13} className="text-ink-400" />
                           )}
@@ -200,20 +242,31 @@ export function TabelSiswa({
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      {tampil.length > 0 && (
-        <p className="mt-2 text-[11.5px] text-ink-400">
-          Menampilkan {tampil.length} dari {siswa.length} siswa
-        </p>
+      {!memuat && (
+        <Paginasi
+          hal={hal}
+          totalHal={totalHal}
+          total={total}
+          per={per}
+          jumlahTampil={siswa.length}
+          onPindah={(h) => { setHal(h); setPilih(new Set()); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+        />
       )}
 
-      {edit && <EditSiswa siswa={edit} kelasTersedia={kelasTersedia} tutup={() => setEdit(null)} />}
+      {edit && (
+        <EditSiswa
+          siswa={edit}
+          kelasTersedia={kelasTersedia}
+          tutup={() => { setEdit(null); muat(); }}
+        />
+      )}
     </>
   );
 }
