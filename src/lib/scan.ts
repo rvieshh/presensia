@@ -1,7 +1,8 @@
 import { prisma } from './prisma';
 import { verifyQrToken } from './qr';
 import { ambilSettings } from './settings';
-import { jamKeMenit, menitDariDate, tanggalHariIni } from './waktu';
+import { menitDariDate, tanggalHariIni } from './waktu';
+import { tentukanJadwal } from './jadwal';
 import type { StatusHadir } from '@prisma/client';
 
 export interface HasilScan {
@@ -71,7 +72,8 @@ export async function prosesScan(opsi: OpsiScan): Promise<HasilScan> {
   // 4. Tentukan MASUK / PULANG
   const st = await ambilSettings();
   const menitSkrg = menitDariDate(now);
-  const batasPulang = jamKeMenit(st.jam_pulang);
+  const jadwal = tentukanJadwal(st, now, siswa.agama);
+  const batasPulang = jadwal.batasPulang;
   const tanggal = tanggalHariIni(now);
 
   const existing = await prisma.absensi.findUnique({
@@ -123,7 +125,7 @@ export async function prosesScan(opsi: OpsiScan): Promise<HasilScan> {
     };
   }
 
-  const batasTelat = jamKeMenit(st.jam_telat);
+  const batasTelat = jadwal.batasTelat;
   const telat = menitSkrg > batasTelat;
   const status: StatusHadir = telat ? 'TERLAMBAT' : 'HADIR';
   const menitTelat = telat ? menitSkrg - batasTelat : 0;

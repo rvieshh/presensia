@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserPlus, Upload, X, FileDown, Loader2, Camera, Trash2, User } from 'lucide-react';
 import { Select } from './Select';
+import { AGAMA } from '@/lib/waktu';
 
 interface Props { kelasTersedia: string[] }
 
@@ -68,7 +69,7 @@ const inp = 'mt-1.5 w-full rounded-btn bg-white px-3 py-2 text-[13.5px] text-ink
 const lbl = 'text-[12.5px] font-medium text-ink-700';
 
 function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; selesai: () => void }) {
-  const [f, setF] = useState({ nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '', waOrtu: '' });
+  const [f, setF] = useState({ nis: '', nisn: '', nama: '', kelas: kelasTersedia[0] || '', agama: '', waOrtu: '' });
   const [kelasLokal, setKelasLokal] = useState<string[]>(kelasTersedia);
   const [file, setFile] = useState<File | null>(null);
   const [pratinjau, setPratinjau] = useState<string | null>(null);
@@ -182,6 +183,21 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
                 placeholder="Pilih kelas"
               />
             </div>
+          </div>
+
+          <div>
+            <label className={lbl} htmlFor="f-agama">Agama</label>
+            <div className="mt-1.5">
+              <Select
+                id="f-agama"
+                label="Agama"
+                nilai={f.agama}
+                opsi={[{ nilai: '', label: '—' }, ...AGAMA.map((a) => ({ nilai: a, label: a }))]}
+                onPilih={(v) => setF({ ...f, agama: v })}
+                placeholder="Pilih agama"
+              />
+            </div>
+            <p className="mt-1 text-[11px] text-ink-400">Dipakai untuk dispensasi salat Jumat.</p>
           </div>
 
           <div>

@@ -4,6 +4,7 @@ import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera, Trash2, Loader2, Save, X, RefreshCw, User } from 'lucide-react';
 import { Select } from './Select';
+import { AGAMA } from '@/lib/waktu';
 
 export interface SiswaData {
   id: string;
@@ -11,6 +12,7 @@ export interface SiswaData {
   nisn: string | null;
   nama: string;
   kelas: string;
+  agama: string | null;
   waOrtu: string | null;
   aktif: boolean;
   adaFoto: boolean;
@@ -182,6 +184,21 @@ export function EditSiswa({
                     placeholder="Pilih kelas"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className={lbl} htmlFor="e-agama">Agama</label>
+                <div className="mt-1.5">
+                  <Select
+                    id="e-agama"
+                    label="Agama"
+                    nilai={f.agama ?? ''}
+                    opsi={[{ nilai: '', label: '—' }, ...AGAMA.map((a) => ({ nilai: a, label: a }))]}
+                    onPilih={(v) => setF({ ...f, agama: v })}
+                    placeholder="Pilih agama"
+                  />
+                </div>
+                <p className="mt-1 text-[11px] text-ink-400">Dipakai untuk dispensasi salat Jumat.</p>
               </div>
 
               <div>

@@ -1,4 +1,4 @@
-import { Settings } from 'lucide-react';
+import { Settings, Sun, Moon, CalendarClock } from 'lucide-react';
 import { ambilSettings } from '@/lib/settings';
 import { FormPengaturan } from '@/components/FormPengaturan';
 
@@ -20,22 +20,73 @@ export default async function PengaturanPage() {
         </div>
       </div>
 
-      <div className="mt-5 max-w-2xl">
-        <FormPengaturan
-          awal={{
-            nama_sekolah: st.nama_sekolah,
-            jam_masuk: st.jam_masuk,
-            jam_telat: st.jam_telat,
-            jam_pulang: st.jam_pulang,
-          }}
-          bidang={[
-            { key: 'nama_sekolah', label: 'Nama Sekolah', area: true, hint: 'Tampil di layar absensi dan pesan WhatsApp' },
-            { key: 'jam_masuk', label: 'Jam Masuk', tipe: 'time' },
-            { key: 'jam_telat', label: 'Batas Terlambat', tipe: 'time', hint: 'Scan setelah jam ini dihitung terlambat' },
-            { key: 'jam_pulang', label: 'Jam Pulang', tipe: 'time', hint: 'Scan setelah jam ini dianggap absen pulang' },
-          ]}
-          catatan="Perubahan langsung berlaku pada scan berikutnya tanpa perlu memuat ulang layar absensi."
-        />
+      <div className="mt-5 max-w-2xl space-y-5">
+        <section>
+          <div className="mb-2 flex items-center gap-2">
+            <Sun size={15} strokeWidth={2.2} className="text-ink-400" />
+            <h2 className="text-[13.5px] font-semibold">Sesi Pagi</h2>
+          </div>
+          <FormPengaturan
+            awal={{
+              nama_sekolah: st.nama_sekolah,
+              jam_masuk: st.jam_masuk,
+              jam_telat: st.jam_telat,
+              jam_pulang: st.jam_pulang,
+            }}
+            bidang={[
+              { key: 'nama_sekolah', label: 'Nama Sekolah', area: true, hint: 'Tampil di layar absensi dan pesan WhatsApp' },
+              { key: 'jam_masuk', label: 'Jam Masuk', tipe: 'time' },
+              { key: 'jam_telat', label: 'Batas Terlambat', tipe: 'time', hint: 'Scan setelah jam ini dihitung terlambat' },
+              { key: 'jam_pulang', label: 'Jam Pulang', tipe: 'time', hint: 'Scan setelah jam ini dianggap absen pulang' },
+            ]}
+          />
+        </section>
+
+        <section>
+          <div className="mb-2 flex items-center gap-2">
+            <Moon size={15} strokeWidth={2.2} className="text-ink-400" />
+            <h2 className="text-[13.5px] font-semibold">Sesi Siang</h2>
+            <span className="rounded-chip bg-ink-100 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-ink-500">
+              Lanjutan
+            </span>
+          </div>
+          <FormPengaturan
+            awal={{
+              sesi_siang_aktif: st.sesi_siang_aktif ?? 'false',
+              sesi_siang_masuk: st.sesi_siang_masuk ?? '12:50',
+              sesi_siang_telat: st.sesi_siang_telat ?? '13:05',
+              sesi_siang_pulang: st.sesi_siang_pulang ?? '17:30',
+            }}
+            bidang={[
+              { key: 'sesi_siang_aktif', label: 'Sesi Siang', tipe: 'toggle', hint: 'Nyalakan bila sekolah punya rombongan belajar siang' },
+              { key: 'sesi_siang_masuk', label: 'Jam Masuk Siang', tipe: 'time' },
+              { key: 'sesi_siang_telat', label: 'Batas Terlambat Siang', tipe: 'time' },
+              { key: 'sesi_siang_pulang', label: 'Jam Pulang Siang', tipe: 'time' },
+            ]}
+            catatan="Siswa yang scan mendekati jam masuk siang otomatis dinilai memakai jadwal siang, tanpa perlu perangkat atau kartu terpisah."
+          />
+        </section>
+
+        <section>
+          <div className="mb-2 flex items-center gap-2">
+            <CalendarClock size={15} strokeWidth={2.2} className="text-ink-400" />
+            <h2 className="text-[13.5px] font-semibold">Dispensasi Salat Jumat</h2>
+            <span className="rounded-chip bg-ink-100 px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-wide text-ink-500">
+              Lanjutan
+            </span>
+          </div>
+          <FormPengaturan
+            awal={{
+              jumat_dispensasi_aktif: st.jumat_dispensasi_aktif ?? 'false',
+              jumat_batas_masuk: st.jumat_batas_masuk ?? '13:30',
+            }}
+            bidang={[
+              { key: 'jumat_dispensasi_aktif', label: 'Dispensasi Jumat', tipe: 'toggle', hint: 'Hanya berlaku hari Jumat, sesi siang, siswa beragama Islam' },
+              { key: 'jumat_batas_masuk', label: 'Batas Datang Jumat', tipe: 'time', hint: 'Datang sampai jam ini tidak dihitung terlambat' },
+            ]}
+            catatan="Siswa muslim umumnya baru selesai salat Jumat sekitar pukul 13.00-13.30. Tanpa pengaturan ini mereka tercatat terlambat setiap pekan. Aturan tidak berlaku bagi siswa beragama lain, dan tidak berlaku di hari selain Jumat - keterlambatan di hari biasa tetap tercatat sebagaimana mestinya."
+          />
+        </section>
       </div>
     </main>
   );

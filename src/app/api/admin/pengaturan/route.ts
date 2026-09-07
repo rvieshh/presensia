@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 const DIIZINKAN = new Set([
   'jam_masuk', 'jam_telat', 'jam_pulang', 'nama_sekolah',
   'wa_enabled', 'wa_gateway_url', 'wa_gateway_token', 'wa_template_telat', 'wa_template_hadir',
+  'sesi_siang_aktif', 'sesi_siang_masuk', 'sesi_siang_telat', 'sesi_siang_pulang',
+  'jumat_dispensasi_aktif', 'jumat_batas_masuk',
 ]);
 
 export async function POST(req: NextRequest) {
