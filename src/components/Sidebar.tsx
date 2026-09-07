@@ -3,13 +3,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, IdCard, Settings, MessageSquare, LogOut, QrCode, Monitor,
+  LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, QrCode, Monitor,
 } from 'lucide-react';
 
 const MENU = [
   { href: '/admin', label: 'Dasbor', ikon: LayoutDashboard },
   { href: '/admin/siswa', label: 'Data Siswa', ikon: Users },
   { href: '/admin/kartu', label: 'Kartu QR', ikon: IdCard },
+  { href: '/admin/rekap', label: 'Rekap', ikon: CalendarRange },
   { href: '/admin/whatsapp', label: 'WhatsApp', ikon: MessageSquare },
   { href: '/admin/pengaturan', label: 'Pengaturan', ikon: Settings },
 ];
