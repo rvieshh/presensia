@@ -21,9 +21,11 @@ const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli',
 export default function KioskClient({
   sekolah,
   manualAktif,
+  logoUrl,
 }: {
   sekolah: string;
   manualAktif: boolean;
+  logoUrl: string | null;
 }) {
   const [buf, setBuf] = useState('');
   const [data, setData] = useState<Data>({ ada: false });
@@ -104,19 +106,28 @@ export default function KioskClient({
       {/* Header */}
       <header className="border-b border-ink-200 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-card bg-brand-600 text-white">
-              <QrCode size={22} strokeWidth={2.3} />
-            </span>
-            <div>
-              <h1 className="text-[17px] font-semibold leading-tight tracking-tight">
-                Presensi Murid {sekolah}
-              </h1>
-              <p className="text-[12.5px] text-ink-500">
-                Pindai kartu QR untuk mencatat kehadiran
-              </p>
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt={`Logo ${sekolah}`}
+              className="h-14 max-w-[320px] object-contain"
+            />
+          ) : (
+            <div className="flex items-center gap-3">
+              <span className="grid h-11 w-11 place-items-center rounded-card bg-brand-600 text-white">
+                <QrCode size={22} strokeWidth={2.3} />
+              </span>
+              <div>
+                <h1 className="text-[17px] font-semibold leading-tight tracking-tight">
+                  Presensi Murid {sekolah}
+                </h1>
+                <p className="text-[12.5px] text-ink-500">
+                  Pindai kartu QR untuk mencatat kehadiran
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex items-center gap-3">
             <TemaSwitcher ringkas />

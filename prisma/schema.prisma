@@ -163,3 +163,12 @@ model Jurusan {
 
   @@map("jurusan")
 }
+
+model Aset {
+  key       String   @id
+  data      Bytes
+  mime      String
+  updatedAt DateTime @updatedAt
+
+  @@map("aset")
+}

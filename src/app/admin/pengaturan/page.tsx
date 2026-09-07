@@ -1,5 +1,7 @@
 import { Settings, Sun, Moon, CalendarClock, Building2, ScanLine, Palette } from 'lucide-react';
+import { prisma } from '@/lib/prisma';
 import { ambilSettings } from '@/lib/settings';
+import { UnggahLogo } from '@/components/UnggahLogo';
 import { FormPengaturan } from '@/components/FormPengaturan';
 import { TemaSwitcher } from '@/components/TemaSwitcher';
 
@@ -7,7 +9,10 @@ export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Pengaturan — Admin Presensia' };
 
 export default async function PengaturanPage() {
-  const st = await ambilSettings();
+  const [st, logo] = await Promise.all([
+    ambilSettings(),
+    prisma.aset.findUnique({ where: { key: 'logo' }, select: { key: true } }),
+  ]);
 
   return (
     <main className="px-5 py-6 lg:px-8">
@@ -33,6 +38,10 @@ export default async function PengaturanPage() {
               { key: 'nama_sekolah', label: 'Nama Sekolah', area: true, hint: 'Tampil di layar absensi, kartu QR, dan pesan WhatsApp' },
             ]}
           />
+
+          <div className="mt-3">
+            <UnggahLogo adaLogo={Boolean(logo)} sekolah={st.nama_sekolah} />
+          </div>
         </section>
 
         <section>
