@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, QrCode, Monitor,
+  LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, Monitor,
 } from 'lucide-react';
 import { TemaSwitcher } from './TemaSwitcher';
 
@@ -22,12 +22,10 @@ export function Sidebar({ nama, role }: { nama: string; role: string }) {
   return (
     <aside className="no-print sticky top-0 z-40 flex w-full shrink-0 flex-col border-b border-ink-200 bg-white lg:h-screen lg:w-60 lg:border-b-0 lg:border-r">
       <div className="flex items-center gap-2.5 border-ink-200 px-5 py-4 lg:border-b">
-        <span className="grid h-8 w-8 place-items-center rounded-chip bg-brand-600 text-white">
-          <QrCode size={17} strokeWidth={2.4} />
-        </span>
         <div className="min-w-0">
-          <p className="truncate text-[14px] font-semibold leading-tight tracking-tight">Presensia</p>
-          <p className="text-[11px] text-ink-400">Panel Admin</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/presensia-logo.png" alt="Presensia" className="logo-marka h-5 w-auto object-contain" />
+          <p className="mt-1 text-[11px] text-ink-400">Panel Admin</p>
         </div>
       </div>
 

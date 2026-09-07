@@ -122,14 +122,18 @@ export default function KioskClient({
             />
           ) : (
             <div className="flex items-center gap-3">
-              <span className="grid h-11 w-11 place-items-center rounded-card bg-brand-600 text-white">
-                <QrCode size={22} strokeWidth={2.3} />
-              </span>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/presensia-logo.png"
+                alt="Presensia"
+                className="logo-marka h-8 w-auto object-contain"
+              />
+              <span className="h-8 w-px bg-ink-200" aria-hidden />
               <div>
-                <h1 className="text-[17px] font-semibold leading-tight tracking-tight">
+                <h1 className="text-[15px] font-semibold leading-tight tracking-tight">
                   Presensi Murid {sekolah}
                 </h1>
-                <p className="text-[12.5px] text-ink-500">
+                <p className="text-[12px] text-ink-500">
                   Pindai kartu QR untuk mencatat kehadiran
                 </p>
               </div>

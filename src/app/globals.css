@@ -243,3 +243,12 @@ input[type="number"],
 textarea {
   cursor: text;
 }
+
+/*
+ * Logo marka Presensia berwarna gelap dengan latar tembus pandang.
+ * Pada mode gelap warnanya dibalik agar tetap terbaca, tanpa perlu
+ * menyiapkan dua berkas terpisah.
+ */
+:root[data-tema="gelap"] .logo-marka {
+  filter: invert(1) brightness(1.6);
+}
