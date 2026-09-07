@@ -93,7 +93,7 @@ export default async function RekapPage({
             <p className="mt-1 text-[12.5px] text-ink-400">Tambah siswa terlebih dahulu, atau ganti rentang waktu.</p>
           </div>
         ) : (
-          <div className="scroll-halus overflow-x-auto">
+          <div className="scroll-halus scroll-x overflow-x-auto">
             <table className="w-full min-w-[760px] text-left">
               <thead>
                 <tr className="border-b border-ink-200 bg-ink-50">

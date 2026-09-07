@@ -158,7 +158,7 @@ export function Select({
             </div>
           )}
 
-          <ul role="listbox" className="scroll-halus max-h-56 overflow-y-auto p-1">
+          <ul role="listbox" className="scroll-halus scroll-y max-h-56 overflow-y-auto p-1">
             {opsi.length === 0 ? (
               <li className="px-2.5 py-2 text-[12.5px] text-ink-400">Belum ada pilihan</li>
             ) : (

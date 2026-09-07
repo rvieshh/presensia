@@ -156,7 +156,7 @@ export function TabelSiswa({ kelasTersedia }: { kelasTersedia: string[] }) {
       )}
 
       <section className="mt-3 overflow-hidden rounded-card border border-ink-200 bg-white shadow-soft">
-        <div className="scroll-halus overflow-x-auto">
+        <div className="scroll-halus scroll-x overflow-x-auto">
           <table className="w-full min-w-[720px] text-left">
             <thead>
               <tr className="border-b border-ink-200 bg-ink-50">

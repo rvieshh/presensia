@@ -78,8 +78,23 @@ body {
 .scroll-halus {
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-200) transparent;
+}
+
+/*
+ * Panel yang menggulir mendatar (mis. tabel lebar) tidak boleh menahan
+ * gulir tegak. Tanpa pembatasan ini, roda tetikus di atas tabel tertahan
+ * dan halaman tidak ikut bergulir.
+ */
+.scroll-x {
+  overscroll-behavior-x: contain;
+  overscroll-behavior-y: auto;
+  touch-action: pan-x pan-y;
+}
+
+/* Panel yang memang menggulir tegak sendiri, mis. daftar dropdown */
+.scroll-y {
+  overscroll-behavior-y: contain;
   scroll-behavior: smooth;
-  overscroll-behavior: contain;
 }
 
 .scroll-halus::-webkit-scrollbar {
