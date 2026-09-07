@@ -15,6 +15,7 @@ export default async function Home() {
       sekolah={st.nama_sekolah}
       manualAktif={(st.manual_input_aktif ?? 'true') === 'true'}
       logoUrl={logo ? `/api/aset/logo?v=${logo.updatedAt.getTime()}` : null}
+      tema={st.kiosk_tema ?? 'terang'}
     />
   );
 }

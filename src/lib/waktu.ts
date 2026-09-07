@@ -4,6 +4,7 @@ export const DEFAULT_SETTINGS = {
   jam_pulang: '15:30',
   nama_sekolah: 'SMK Contoh',
   manual_input_aktif: 'true',
+  kiosk_tema: 'terang',
   wa_enabled: 'false',
 
   // Sesi siang: sebagian sekolah menjalankan rombongan belajar kedua

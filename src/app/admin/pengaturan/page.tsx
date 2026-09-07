@@ -64,13 +64,23 @@ export default async function PengaturanPage() {
             <h2 className="text-[13.5px] font-semibold">Tampilan</h2>
           </div>
           <div className="rounded-card border border-ink-200 bg-white p-5 shadow-soft">
-            <p className="text-[12.5px] font-medium text-ink-700">Tema Antarmuka</p>
+            <p className="text-[12.5px] font-medium text-ink-700">Tema Panel Admin</p>
             <p className="mt-0.5 text-[11.5px] text-ink-400">
-              Tersimpan di peramban ini saja, tidak memengaruhi pengguna lain.
+              Berlaku pada peramban ini saja, tidak memengaruhi pengguna lain.
             </p>
             <div className="mt-3">
               <TemaSwitcher />
             </div>
+          </div>
+
+          <div className="mt-3">
+            <FormPengaturan
+              awal={{ kiosk_tema: st.kiosk_tema ?? 'terang' }}
+              bidang={[
+                { key: 'kiosk_tema', label: 'Tema Layar Absensi', tipe: 'pilih', opsi: ['terang', 'gelap'], hint: 'Berlaku untuk semua perangkat di gerbang' },
+              ]}
+              catatan="Layar absensi sengaja tidak diberi tombol tema agar tampilannya bersih dan tidak bisa diubah orang yang lewat. Setelan ini yang menentukannya."
+            />
           </div>
         </section>
 

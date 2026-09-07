@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Loader2, CheckCircle2 } from 'lucide-react';
+import { Select } from './Select';
 
 const inp = 'mt-1.5 w-full rounded-btn bg-white px-3 py-2 text-[13.5px] text-ink-900 outline-none ring-1 ring-inset ring-ink-200 transition-shadow placeholder:text-ink-400 hover:ring-ink-400 focus:ring-[1.5px] focus:ring-brand-500';
 const lbl = 'text-[12.5px] font-medium text-ink-700';
@@ -13,7 +14,7 @@ export function FormPengaturan({
   catatan,
 }: {
   awal: Record<string, string>;
-  bidang: { key: string; label: string; tipe?: string; hint?: string; area?: boolean }[];
+  bidang: { key: string; label: string; tipe?: string; hint?: string; area?: boolean; opsi?: string[] }[];
   catatan?: string;
 }) {
   const [f, setF] = useState<Record<string, string>>(awal);
@@ -50,6 +51,16 @@ export function FormPengaturan({
                 onChange={(e) => setF({ ...f, [b.key]: e.target.value })}
                 className={inp}
               />
+            ) : b.tipe === 'pilih' ? (
+              <div className="mt-1.5">
+                <Select
+                  id={b.key}
+                  label={b.label}
+                  nilai={f[b.key] ?? ''}
+                  opsi={(b.opsi ?? []).map((o) => ({ nilai: o, label: o.charAt(0).toUpperCase() + o.slice(1) }))}
+                  onPilih={(v) => setF({ ...f, [b.key]: v })}
+                />
+              </div>
             ) : b.tipe === 'toggle' ? (
               <button
                 type="button"

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { QrCode, CheckCircle2, XCircle, ScanLine, User } from 'lucide-react';
-import { TemaSwitcher } from '@/components/TemaSwitcher';
 
 interface Data {
   ada: boolean;
@@ -22,10 +21,12 @@ export default function KioskClient({
   sekolah,
   manualAktif,
   logoUrl,
+  tema,
 }: {
   sekolah: string;
   manualAktif: boolean;
   logoUrl: string | null;
+  tema: string;
 }) {
   const [buf, setBuf] = useState('');
   const [data, setData] = useState<Data>({ ada: false });
@@ -34,6 +35,12 @@ export default function KioskClient({
   const [proses, setProses] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastId = useRef<string | null>(null);
+
+  // Layar absensi memakai tema dari pengaturan sekolah, bukan pilihan
+  // peramban, supaya tampilannya seragam di setiap perangkat gerbang.
+  useEffect(() => {
+    document.documentElement.dataset.tema = tema === 'gelap' ? 'gelap' : 'terang';
+  }, [tema]);
 
   // Jam berjalan
   useEffect(() => {
@@ -129,12 +136,9 @@ export default function KioskClient({
             </div>
           )}
 
-          <div className="flex items-center gap-3">
-            <TemaSwitcher ringkas />
-            <div className="text-right">
+          <div className="text-right">
             <p className="tnum text-[26px] font-semibold leading-none">{jam || '--:--:--'}</p>
             <p className="mt-1 text-[12px] text-ink-500">{tgl || '\u00A0'}</p>
-            </div>
           </div>
         </div>
       </header>
