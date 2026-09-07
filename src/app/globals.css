@@ -155,3 +155,42 @@ input[type="date"]:hover::-webkit-calendar-picker-indicator,
 input[type="time"]:hover::-webkit-calendar-picker-indicator {
   opacity: .8;
 }
+
+/*
+ * Tailwind v4 mengikuti bawaan peramban yang memberi kursor panah pada
+ * <button>, berbeda dari v3 yang memaksanya menjadi pointer. Akibatnya
+ * tombol tampak tidak bisa ditekan. Kembalikan secara menyeluruh.
+ */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]),
+a[href],
+summary,
+label[for],
+input[type="checkbox"]:not(:disabled),
+input[type="radio"]:not(:disabled),
+input[type="file"]:not(:disabled),
+select:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled,
+[aria-disabled="true"],
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}
+
+/* Berkas: tombol pilih di dalamnya juga harus terasa dapat ditekan */
+input[type="file"]::file-selector-button {
+  cursor: pointer;
+}
+
+/* Kolom teks tetap memakai kursor sisip */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+textarea {
+  cursor: text;
+}
