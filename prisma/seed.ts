@@ -12,9 +12,12 @@ function genQr(nis: string) {
   return `${body}.${sig}`;
 }
 
+// Nama contoh sengaja bersifat umum, bukan nama orang sungguhan
 const NAMA = [
-  'Randika Putra', 'Ayu Lestari', 'Gede Bagus', 'Kadek Sari', 'Wayan Adi',
-  'Ni Luh Putu', 'Made Dwi', 'Komang Rai', 'Putu Andika', 'Kadek Ayu',
+  'Siswa Contoh Satu', 'Siswa Contoh Dua', 'Siswa Contoh Tiga',
+  'Siswa Contoh Empat', 'Siswa Contoh Lima', 'Siswa Contoh Enam',
+  'Siswa Contoh Tujuh', 'Siswa Contoh Delapan', 'Siswa Contoh Sembilan',
+  'Siswa Contoh Sepuluh',
 ];
 
 async function main() {
@@ -23,7 +26,7 @@ async function main() {
       { key: 'jam_masuk', value: '07:00' },
       { key: 'jam_telat', value: '07:15' },
       { key: 'jam_pulang', value: '15:30' },
-      { key: 'nama_sekolah', value: 'SMK TI Bali Global' },
+      { key: 'nama_sekolah', value: 'Sekolah Contoh' },
       { key: 'wa_enabled', value: 'false' },
     ],
     skipDuplicates: true,
@@ -43,7 +46,7 @@ async function main() {
   const kelas = await prisma.kelas.upsert({
     where: { nama: 'XI RPL 1' },
     update: {},
-    create: { nama: 'XI RPL 1', tingkat: 'XI', jurusan: 'RPL', waliKelas: 'Bu Sinta' },
+    create: { nama: 'XI RPL 1', tingkat: 'XI', jurusan: 'RPL', waliKelas: 'Wali Kelas Contoh' },
   });
 
   for (let i = 0; i < NAMA.length; i++) {

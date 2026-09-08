@@ -98,8 +98,8 @@ Mesin absensi:
 
 ```csv
 nis,nama,kelas,wa_ortu,foto_url
-2025001,Putu Ariana Dewi,X RPL 1,081234567001,
-2025002,"Ni Made Ayu, S.",X RPL 2,081234567002,
+2025001,Nama Siswa Pertama,X RPL 1,081234567001,
+2025002,"Nama Siswa Kedua, S.",X RPL 2,081234567002,
 ```
 
 Tiga kolom pertama wajib. Pemisah koma atau titik koma, nama bertanda kutip
@@ -168,7 +168,7 @@ Respons sukses:
 {
   "ok": true,
   "pesan": "Absen masuk tercatat",
-  "siswa": { "nama": "Randika Putra", "nis": "2024001", "kelas": "XI RPL 1" },
+  "siswa": { "nama": "Nama Siswa", "nis": "2024001", "kelas": "XI RPL 1" },
   "jam": "07:02",
   "tipe": "MASUK",
   "status": "HADIR"

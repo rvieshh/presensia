@@ -166,7 +166,7 @@ function FormTambah({ kelasTersedia, selesai }: { kelasTersedia: string[]; seles
 
           <div className="sm:col-span-2">
             <label className={lbl} htmlFor="f-nama">Nama Lengkap *</label>
-            <input id="f-nama" required value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} className={inp} placeholder="Randika Putra" />
+            <input id="f-nama" required value={f.nama} onChange={(e) => setF({ ...f, nama: e.target.value })} className={inp} placeholder="Nama lengkap siswa" />
           </div>
 
           <div>
