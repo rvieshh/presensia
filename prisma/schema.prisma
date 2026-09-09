@@ -27,14 +27,19 @@ enum TipeScan {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  nama      String
-  password  String
-  role      Role     @default(OPERATOR)
-  aktif     Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             String   @id @default(cuid())
+  email          String   @unique
+  username       String?  @unique
+  nama           String
+  password       String
+  role           Role     @default(OPERATOR)
+  aktif          Boolean  @default(true)
+  totpEnabled    Boolean  @default(false)
+  totpSecretEnc  String?
+  sessionVersion Int      @default(1)
+  lastLoginAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("users")
 }

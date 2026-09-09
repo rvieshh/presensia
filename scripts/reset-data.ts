@@ -3,9 +3,16 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-  // Urutan aman mengikuti foreign key. Akun admin, migration history,
-  // dan struktur tabel tidak disentuh.
+  const emailEnv = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const utama = emailEnv
+    ? await prisma.user.findUnique({ where: { email: emailEnv } })
+    : await prisma.user.findFirst({ where: { role: 'ADMIN' }, orderBy: { createdAt: 'asc' } });
+
+  // Urutan aman mengikuti foreign key. Migration history dan struktur
+  // tabel tidak disentuh. Satu admin utama dipertahankan agar instalasi
+  // lokal tidak terkunci setelah reset.
   await prisma.$transaction([
+    prisma.user.deleteMany({ where: utama ? { id: { not: utama.id } } : {} }),
     prisma.waOutbox.deleteMany(),
     prisma.scanLog.deleteMany(),
     prisma.absensi.deleteMany(),
@@ -17,7 +24,7 @@ async function main() {
     prisma.setting.deleteMany(),
   ]);
 
-  console.log('Data operasional dibersihkan: siswa, absensi, log, kelas, device, aset, setting, dan antrean WA = 0');
+  console.log(`Data operasional dibersihkan; admin dipertahankan=${utama?.email ?? 'tidak ada'}`);
 }
 
 main()

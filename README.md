@@ -88,6 +88,15 @@
 - Template pesan, URL gateway, token, antrean, retry, dan monitor status.
 - Worker dapat dijalankan berkala menggunakan cron.
 
+### Accounts, Teams, dan 2FA
+
+- Login memakai email atau username.
+- Masa sesi admin default 60 menit (`ADMIN_SESSION_MINUTES`) dan dapat diubah melalui environment.
+- Accounts: ubah nama, email, username, password, serta setup/nonaktifkan TOTP 2FA.
+- Teams: buat akun administrator tambahan, aktif/nonaktifkan, dan hapus anggota.
+- Perubahan password/status akun menaikkan `sessionVersion`, sehingga sesi lama langsung dicabut.
+- Secret TOTP dienkripsi AES-256-GCM sebelum disimpan ke database.
+
 ### Keamanan
 
 - Session JWT dalam cookie `HttpOnly` + `SameSite=Lax`.
@@ -138,6 +147,7 @@ Isi `.env` dan generate secrets **berbeda**:
 ```bash
 openssl rand -base64 48   # JWT_SECRET
 openssl rand -base64 48   # QR_SECRET
+openssl rand -base64 48   # TOTP_ENCRYPTION_KEY
 openssl rand -hex 32      # DEVICE_API_KEY (opsional)
 ```
 
@@ -255,7 +265,8 @@ npm run cron:wa
 Sebelum membuka aplikasi ke internet:
 
 - [ ] Ganti semua nilai `CHANGE_ME` di `.env`.
-- [ ] Gunakan `JWT_SECRET` dan `QR_SECRET` berbeda, acak, minimal 48 byte.
+- [ ] Gunakan `JWT_SECRET`, `QR_SECRET`, dan `TOTP_ENCRYPTION_KEY` berbeda, acak, minimal 48 byte.
+- [ ] Pertahankan `ADMIN_SESSION_MINUTES=60` atau pilih 15–1440 menit sesuai kebijakan.
 - [ ] Gunakan password database dan admin yang kuat.
 - [ ] Jalankan di belakang HTTPS; set `COOKIE_SECURE=true`.
 - [ ] Jangan expose PostgreSQL (`5432`) ke internet.
