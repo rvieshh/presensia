@@ -1,77 +1,75 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { createHmac, randomBytes } from 'crypto';
 
 const prisma = new PrismaClient();
-const SECRET = process.env.QR_SECRET || 'dev_qr_secret';
 
-function genQr(nis: string) {
-  const nonce = randomBytes(6).toString('base64url');
-  const body = `PRS1.${nis}.${nonce}`;
-  const sig = createHmac('sha256', SECRET).update(body).digest('base64url').slice(0, 16);
-  return `${body}.${sig}`;
+function wajib(nama: string): string {
+  const nilai = process.env[nama]?.trim();
+  if (!nilai) throw new Error(`${nama} wajib diisi di .env sebelum menjalankan seed`);
+  return nilai;
 }
 
-// Nama contoh sengaja bersifat umum, bukan nama orang sungguhan
-const NAMA = [
-  'Siswa Contoh Satu', 'Siswa Contoh Dua', 'Siswa Contoh Tiga',
-  'Siswa Contoh Empat', 'Siswa Contoh Lima', 'Siswa Contoh Enam',
-  'Siswa Contoh Tujuh', 'Siswa Contoh Delapan', 'Siswa Contoh Sembilan',
-  'Siswa Contoh Sepuluh',
-];
-
 async function main() {
-  await prisma.setting.createMany({
-    data: [
-      { key: 'jam_masuk', value: '07:00' },
-      { key: 'jam_telat', value: '07:15' },
-      { key: 'jam_pulang', value: '15:30' },
-      { key: 'nama_sekolah', value: 'Sekolah Contoh' },
-      { key: 'wa_enabled', value: 'false' },
-    ],
-    skipDuplicates: true,
-  });
+  const email = wajib('ADMIN_EMAIL').toLowerCase();
+  const password = wajib('ADMIN_PASSWORD');
+  const nama = process.env.ADMIN_NAME?.trim() || 'Administrator';
+
+  if (password.length < 12) {
+    throw new Error('ADMIN_PASSWORD minimal 12 karakter');
+  }
+
+  const settings = [
+    ['nama_sekolah', process.env.SCHOOL_NAME?.trim() || 'Nama Sekolah'],
+    ['jam_masuk', '07:00'],
+    ['jam_telat', '07:15'],
+    ['jam_pulang', '15:30'],
+    ['manual_input_aktif', 'true'],
+    ['kiosk_tema', 'terang'],
+    ['wa_enabled', 'false'],
+    ['sesi_siang_aktif', 'false'],
+    ['sesi_siang_masuk', '12:50'],
+    ['sesi_siang_telat', '13:05'],
+    ['sesi_siang_pulang', '17:30'],
+    ['jumat_dispensasi_aktif', 'false'],
+    ['jumat_batas_masuk', '13:30'],
+    ['scan_device_wajib', 'false'],
+    ['scan_ip_allowlist_aktif', 'false'],
+    ['scan_ip_allowlist', ''],
+    ['trusted_proxy_cidrs', '127.0.0.1/32\n::1/128'],
+    ['scan_rate_limit_per_minute', '120'],
+  ];
+
+  for (const [key, value] of settings) {
+    await prisma.setting.upsert({ where: { key }, update: {}, create: { key, value } });
+  }
 
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@presensia.test' },
-    update: {},
-    create: {
-      email: 'admin@presensia.test',
-      nama: 'Administrator',
-      password: await bcrypt.hash('admin123', 10),
-      role: 'ADMIN',
-    },
+    where: { email },
+    update: { nama, password: await bcrypt.hash(password, 12), role: 'ADMIN', aktif: true },
+    create: { email, nama, password: await bcrypt.hash(password, 12), role: 'ADMIN' },
   });
 
-  const kelas = await prisma.kelas.upsert({
-    where: { nama: 'XI RPL 1' },
-    update: {},
-    create: { nama: 'XI RPL 1', tingkat: 'XI', jurusan: 'RPL', waliKelas: 'Wali Kelas Contoh' },
-  });
-
-  for (let i = 0; i < NAMA.length; i++) {
-    const nis = `2024${String(i + 1).padStart(3, '0')}`;
-    await prisma.siswa.upsert({
-      where: { nis },
-      update: {},
+  const deviceKey = process.env.DEVICE_API_KEY?.trim();
+  if (deviceKey) {
+    if (deviceKey.length < 24) throw new Error('DEVICE_API_KEY minimal 24 karakter');
+    await prisma.device.upsert({
+      where: { apiKey: deviceKey },
+      update: { aktif: true },
       create: {
-        nis,
-        nama: NAMA[i],
-        kelasId: kelas.id,
-        waOrtu: `62812${String(10000000 + i)}`,
-        qrToken: genQr(nis),
+        nama: process.env.DEVICE_NAME?.trim() || 'Scanner Utama',
+        lokasi: process.env.DEVICE_LOCATION?.trim() || 'Gerbang Utama',
+        apiKey: deviceKey,
+        tipe: 'MASUK',
       },
     });
   }
 
-  await prisma.device.upsert({
-    where: { apiKey: 'dev-scanner-gerbang-utama' },
-    update: {},
-    create: { nama: 'Scanner Gerbang Utama', lokasi: 'Gerbang Depan', apiKey: 'dev-scanner-gerbang-utama', tipe: 'MASUK' },
-  });
-
-  const total = await prisma.siswa.count();
-  console.log(`Seed OK -> admin:${admin.email} kelas:${kelas.nama} siswa:${total}`);
+  console.log(`Bootstrap selesai: admin=${admin.email}, siswa=0, device=${deviceKey ? 1 : 0}`);
 }
 
-main().finally(() => prisma.$disconnect());
+main()
+  .catch((e) => {
+    console.error(e instanceof Error ? e.message : e);
+    process.exitCode = 1;
+  })
+  .finally(() => prisma.$disconnect());

@@ -1,18 +1,20 @@
 {
   "name": "presensia",
   "version": "0.1.0",
-  "description": "",
+  "description": "Sistem absensi sekolah berbasis QR dengan kiosk real-time, panel admin, rekap, WhatsApp, dan keamanan perangkat.",
   "main": "index.js",
   "scripts": {
     "dev": "next dev -p 3900",
     "build": "next build",
     "start": "NODE_ENV=production node server.cjs",
     "seed": "tsx prisma/seed.ts",
-    "cron:wa": "tsx scripts/cron-wa.ts"
+    "cron:wa": "tsx scripts/cron-wa.ts",
+    "setup": "prisma migrate deploy && npm run seed",
+    "reset:data": "tsx scripts/reset-data.ts"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@tailwindcss/postcss": "^4.3.3",
