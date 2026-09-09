@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, Monitor,
+  LayoutDashboard, Users, IdCard, CalendarRange, Settings, MessageSquare, LogOut, Monitor, ShieldCheck,
 } from 'lucide-react';
 import { TemaSwitcher } from './TemaSwitcher';
 
@@ -13,6 +13,7 @@ const MENU = [
   { href: '/admin/kartu', label: 'Kartu QR', ikon: IdCard },
   { href: '/admin/rekap', label: 'Rekap', ikon: CalendarRange },
   { href: '/admin/whatsapp', label: 'WhatsApp', ikon: MessageSquare },
+  { href: '/admin/keamanan', label: 'Keamanan Server', ikon: ShieldCheck },
   { href: '/admin/pengaturan', label: 'Pengaturan', ikon: Settings },
 ];
 

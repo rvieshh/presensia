@@ -10,6 +10,8 @@ const DIIZINKAN = new Set([
   'sesi_siang_aktif', 'sesi_siang_masuk', 'sesi_siang_telat', 'sesi_siang_pulang',
   'jumat_dispensasi_aktif', 'jumat_batas_masuk',
   'manual_input_aktif', 'kiosk_tema',
+  'scan_device_wajib', 'scan_ip_allowlist_aktif', 'scan_ip_allowlist',
+  'trusted_proxy_cidrs', 'scan_rate_limit_per_minute',
 ]);
 
 export async function POST(req: NextRequest) {

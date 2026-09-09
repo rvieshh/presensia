@@ -24,17 +24,6 @@ export async function prosesScan(opsi: OpsiScan): Promise<HasilScan> {
   const { rawInput, apiKey, ip } = opsi;
   const now = new Date();
 
-  // Bila input manual dimatikan, hanya perangkat pemindai terdaftar yang
-  // boleh mengirim. Tanpa penjagaan ini, menyembunyikan kolom di layar
-  // saja masih bisa dilewati dengan memanggil endpoint langsung.
-  const pengaturan = await ambilSettings();
-  if ((pengaturan.manual_input_aktif ?? 'true') !== 'true' && !apiKey) {
-    await prisma.scanLog.create({
-      data: { rawInput, sukses: false, alasan: 'Input manual dinonaktifkan', ip },
-    });
-    return { ok: false, pesan: 'Input manual dinonaktifkan, gunakan alat pemindai' };
-  }
-
   // 1. Resolusi device (opsional; kalau tanpa apiKey dianggap web station)
   let device = null;
   if (apiKey) {

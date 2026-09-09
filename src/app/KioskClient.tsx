@@ -172,7 +172,6 @@ export default function KioskClient({
             onChange={(e) => setBuf(e.target.value)}
             placeholder="Tembakkan QR ke scanner, atau ketik kode lalu Enter"
             autoComplete="off"
-            readOnly={!manualAktif}
             aria-hidden={!manualAktif}
             tabIndex={manualAktif ? 0 : -1}
             className={
